@@ -1,29 +1,20 @@
 export patch
 
 
-# TODO:: implement some of the method/function stuff in terms of patches on the function properties
 function patch(fn::Function, mod::Module, name::Symbol, new::Function)
   const old = mod.eval(name)
-
   if isgeneric(old) && isconst(mod, name)
-    const old_fptr, old_env = mod.eval(:($name.fptr, $name.env))
     if !isgeneric(new)
-      const setup = quote
-        $name.fptr = $new.fptr
-        $name.env = nothing
-        $name.code = $new.code
+      return patch(old, :env, nothing) do
+        patch(old, :fptr, new.fptr) do
+          _patch(fn, mod, :($name.code = $new.code), :())
+        end
       end
     else
-      const setup = quote
-        $name.fptr = $new.fptr
-        $name.env = $new.env
+      return patch(old, :env, new.env) do
+        patch(fn, old, :fptr, new.fptr)
       end
     end
-    const teardown = quote
-      $name.fptr = $old_fptr
-      $name.env = $old_env
-    end
-    return _patch(fn, mod, setup, teardown)
   else
     return _patch(fn, mod, name, old, new)
   end
