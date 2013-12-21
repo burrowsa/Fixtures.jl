@@ -32,7 +32,7 @@ end
 function patch(fn::Function, obj::Any, name::Symbol, new::Any)
   const old_expr = :($obj.$name)
   const old = eval(old_expr)
-  return _patch(fn, Base, old_expr, old, new)
+  return _patch(fn, Core, old_expr, old, new)
 end
 
 function patch(fn::Function, mod::Module, name::Symbol, new::Any)
