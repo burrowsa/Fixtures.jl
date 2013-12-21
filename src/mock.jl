@@ -1,5 +1,3 @@
 module mock
-
-# package code goes here
-
-end # module
+include("patch.jl")
+end
