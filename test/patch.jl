@@ -375,12 +375,10 @@ type List
   next::List
   List(v::Any) = new(v)
   List(v::Any, nxt::List) = new(v, nxt)
+  List{T}(vs::Array{T,1}) = length(vs) > 1 ? List(vs[1], List(vs[2:])) : List(vs[1])
 end
 
-lst = List(40, List(30, List(20, List(10))))
-
-#List(v::Array) = List(v[1], List(v[2:])) ? length(v)>1 : List(v[1])
-#lst2 = List([10,20,30,40])
+lst = List([40,30,20,10])
 
 end
 
@@ -490,7 +488,7 @@ facts("Patch object tests") do
     end
   end
 
-#  TODO:: patch a global e.g. mylist, not in a module and in its entirity - note above we can patch its properties
+#  TODO:: patch a global e.g. mylist, not in a module and in its entirety - note above we can patch its properties
 #
 #  myotherlist = listeroo.List(4, listeroo.List(3, listeroo.List(2, listeroo.List(1))))
 #
@@ -504,7 +502,37 @@ facts("Patch object tests") do
 #      end
 #    end
 #  end
+
+  function checklistconstruction()
+    @fact typeof(listeroo.List(100)) => listeroo.List
+    @fact typeof(listeroo.List(100, listeroo.List(200))) => listeroo.List
+    @fact typeof(listeroo.List([1, 2, 3])) => listeroo.List
+    @fact_throws listeroo.List(1,2,3)
+  end
+
+  context("patch constructor with a lambda") do
+    checkbeforeandafter(checklistconstruction) do
+      patch(listeroo, :List, (x,y,z) -> 100) do
+        @fact_throws listeroo.List(100)
+        @fact_throws listeroo.List(100, listeroo.List(200))
+        @fact_throws listeroo.List([1, 2, 3])
+        @fact listeroo.List(1,2,3) => 100
+        @fact typeof(listeroo.List(1,2,3)) => not(listeroo.List)
+      end
+    end
+  end
+
+  mynewconstructor(x,y,z) = 100
+
+  context("patch constructor with a method") do
+    checkbeforeandafter(checklistconstruction) do
+      patch(listeroo, :List, mynewconstructor) do
+        @fact_throws listeroo.List(100)
+        @fact_throws listeroo.List(100, listeroo.List(200))
+        @fact_throws listeroo.List([1, 2, 3])
+        @fact listeroo.List(1,2,3) => 100
+      end
+    end
+  end
+
 end
-
-
-# TODO:: constructors, anonymous functions on types/objects etc
