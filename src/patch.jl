@@ -1,4 +1,4 @@
-export patch
+export patch, @patch
 
 
 function patch(fn::Function, mod::Module, name::Symbol, new::Function)
@@ -43,5 +43,17 @@ function _patch(fn::Function, mod::Module, setup::Expr, teardown::Expr)
     return fn()
   finally
     mod.eval(teardown)
+  end
+end
+
+macro patch(expr::Expr, name::Symbol, new::Any)
+  quote
+    const old = $(esc(name))
+    try
+      $(esc(name))=$(esc(new))
+      $(esc(expr))()
+    finally
+      $(esc(name))=old
+    end
   end
 end

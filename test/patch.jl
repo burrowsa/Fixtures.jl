@@ -488,20 +488,27 @@ facts("Patch object tests") do
     end
   end
 
-#  TODO:: patch a global e.g. mylist, not in a module and in its entirety - note above we can patch its properties
-#
-#  myotherlist = listeroo.List(4, listeroo.List(3, listeroo.List(2, listeroo.List(1))))
-#
-#  context("patch mylist") do
-#    checkbeforeandafter(checkmylist) do
-#      patch(:mylist, myotherlist) do
-#        @fact mylist.value => 4
-#        @fact mylist.next.value => 3
-#        @fact mylist.next.next.value => 2
-#        @fact mylist.next.next.next.value => 1
-#      end
-#    end
-#  end
+  myotherlist = listeroo.List([4,3,2,1])
+
+  context("patch global variable") do
+    checkbeforeandafter(checkmylist) do
+      @patch(mylist, myotherlist) do
+        @fact mylist.value => 4
+        @fact mylist.next.value => 3
+        @fact mylist.next.next.value => 2
+        @fact mylist.next.next.next.value => 1
+      end
+    end
+  end
+
+  context("patch global variable and check the return value") do
+    checkbeforeandafter(checkmylist) do
+      const result = @patch(mylist, myotherlist) do
+        mylist
+      end
+      @fact result => myotherlist
+    end
+  end
 
   function checklistconstruction()
     @fact typeof(listeroo.List(100)) => listeroo.List
