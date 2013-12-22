@@ -2,7 +2,7 @@ using Base.Test
 using mock
 using FactCheck
 
-# This module has an example of every kind of thing we can patch and is used by the tests
+# This module has an example of most kinds of thing we can patch and is used by the tests
 module testmodule1
   export test1variable, test1constmethod, test1nonconstmethod, test1function, test1lambda
   test1variable = 7
@@ -15,7 +15,7 @@ module testmodule1
   test1lambda = x -> x + test1variable
 end
 
-# This module has an example of every kind of thing we can patch plus it uses testmodule1
+# This module has an example of most kinds of thing we can patch plus it uses testmodule1
 # it is used by the tests
 module testmodule2
   using testmodule1
@@ -33,6 +33,16 @@ module testmodule2
     value = 12
     func() = 200
   end
+
+  type List
+    value::Any
+    next::List
+    List(v::Any) = new(v)
+    List(v::Any, nxt::List) = new(v, nxt)
+    List{T}(vs::Array{T,1}) = length(vs) > 1 ? List(vs[1], List(vs[2:])) : List(vs[1])
+  end
+
+  lst = List([40,30,20,10])
 end
 
 # This function checks that testmodule1 works as defined above, we run it before and after
@@ -57,6 +67,7 @@ function checkmodule2()
   @fact testmodule2.test1nonconstmethod(1,10) => 18
   @fact testmodule2.test1function(1) => 8
   @fact testmodule2.test1lambda(1) => 8
+
   @fact testmodule2.test2variable => 7
   @fact testmodule2.test2constmethod(1) => 8
   @fact testmodule2.test2constmethod(1,10) => 18
@@ -66,6 +77,16 @@ function checkmodule2()
   @fact testmodule2.test2lambda(1) => 8
   @fact testmodule2.nestedmodule.value => 12
   @fact testmodule2.nestedmodule.func() => 200
+
+  @fact testmodule2.lst.value => 40
+  @fact testmodule2.lst.next.value => 30
+  @fact testmodule2.lst.next.next.value => 20
+  @fact testmodule2.lst.next.next.next.value => 10
+
+  @fact typeof(testmodule2.List(100)) => testmodule2.List
+  @fact typeof(testmodule2.List(100, testmodule2.List(200))) => testmodule2.List
+  @fact typeof(testmodule2.List([1, 2, 3])) => testmodule2.List
+  @fact_throws testmodule2.List(1,2,3)
 end
 
 
@@ -364,78 +385,51 @@ facts("Patch tests") do
     end
   end
 
-end
-
-########################################################################################
-
-module listeroo
-
-type List
-  value::Any
-  next::List
-  List(v::Any) = new(v)
-  List(v::Any, nxt::List) = new(v, nxt)
-  List{T}(vs::Array{T,1}) = length(vs) > 1 ? List(vs[1], List(vs[2:])) : List(vs[1])
-end
-
-lst = List([40,30,20,10])
-
-end
-
-function checklisteroo()
-  @fact listeroo.lst.value => 40
-  @fact listeroo.lst.next.value => 30
-  @fact listeroo.lst.next.next.value => 20
-  @fact listeroo.lst.next.next.next.value => 10
-end
-
-facts("Patch object tests") do
-
   context("patch first value") do
-    checkbeforeandafter(checklisteroo) do
-      patch(listeroo.lst, :value, 100) do
-        @fact listeroo.lst.value => 100
-        @fact listeroo.lst.next.value => 30
-        @fact listeroo.lst.next.next.value => 20
-        @fact listeroo.lst.next.next.next.value => 10
+    checkbeforeandafter(checkmodule2) do
+      patch(testmodule2.lst, :value, 100) do
+        @fact testmodule2.lst.value => 100
+        @fact testmodule2.lst.next.value => 30
+        @fact testmodule2.lst.next.next.value => 20
+        @fact testmodule2.lst.next.next.next.value => 10
       end
     end
   end
 
   context("patch second value") do
-    checkbeforeandafter(checklisteroo) do
-      patch(listeroo.lst.next, :value, 100) do
-        @fact listeroo.lst.value => 40
-        @fact listeroo.lst.next.value => 100
-        @fact listeroo.lst.next.next.value => 20
-        @fact listeroo.lst.next.next.next.value => 10
+    checkbeforeandafter(checkmodule2) do
+      patch(testmodule2.lst.next, :value, 100) do
+        @fact testmodule2.lst.value => 40
+        @fact testmodule2.lst.next.value => 100
+        @fact testmodule2.lst.next.next.value => 20
+        @fact testmodule2.lst.next.next.next.value => 10
       end
     end
   end
 
   context("patch third value") do
-    checkbeforeandafter(checklisteroo) do
-      patch(listeroo.lst.next.next, :value, 100) do
-        @fact listeroo.lst.value => 40
-        @fact listeroo.lst.next.value => 30
-        @fact listeroo.lst.next.next.value => 100
-        @fact listeroo.lst.next.next.next.value => 10
+    checkbeforeandafter(checkmodule2) do
+      patch(testmodule2.lst.next.next, :value, 100) do
+        @fact testmodule2.lst.value => 40
+        @fact testmodule2.lst.next.value => 30
+        @fact testmodule2.lst.next.next.value => 100
+        @fact testmodule2.lst.next.next.next.value => 10
       end
     end
   end
 
   context("patch fourth value") do
-    checkbeforeandafter(checklisteroo) do
-      patch(listeroo.lst.next.next.next, :value, 100) do
-        @fact listeroo.lst.value => 40
-        @fact listeroo.lst.next.value => 30
-        @fact listeroo.lst.next.next.value => 20
-        @fact listeroo.lst.next.next.next.value => 100
+    checkbeforeandafter(checkmodule2) do
+      patch(testmodule2.lst.next.next.next, :value, 100) do
+        @fact testmodule2.lst.value => 40
+        @fact testmodule2.lst.next.value => 30
+        @fact testmodule2.lst.next.next.value => 20
+        @fact testmodule2.lst.next.next.next.value => 100
       end
     end
   end
 
-  mylist = listeroo.List(1, listeroo.List(2, listeroo.List(3, listeroo.List(4))))
+  mylist = testmodule2.List(1, testmodule2.List(2, testmodule2.List(3, testmodule2.List(4))))
 
   function checkmylist()
     @fact mylist.value => 1
@@ -488,7 +482,7 @@ facts("Patch object tests") do
     end
   end
 
-  myotherlist = listeroo.List([4,3,2,1])
+  myotherlist = testmodule2.List([4,3,2,1])
 
   context("patch global variable") do
     checkbeforeandafter(checkmylist) do
@@ -510,21 +504,14 @@ facts("Patch object tests") do
     end
   end
 
-  function checklistconstruction()
-    @fact typeof(listeroo.List(100)) => listeroo.List
-    @fact typeof(listeroo.List(100, listeroo.List(200))) => listeroo.List
-    @fact typeof(listeroo.List([1, 2, 3])) => listeroo.List
-    @fact_throws listeroo.List(1,2,3)
-  end
-
   context("patch constructor with a lambda") do
-    checkbeforeandafter(checklistconstruction) do
-      patch(listeroo, :List, (x,y,z) -> 100) do
-        @fact_throws listeroo.List(100)
-        @fact_throws listeroo.List(100, listeroo.List(200))
-        @fact_throws listeroo.List([1, 2, 3])
-        @fact listeroo.List(1,2,3) => 100
-        @fact typeof(listeroo.List(1,2,3)) => not(listeroo.List)
+    checkbeforeandafter(checkmodule2) do
+      patch(testmodule2, :List, (x,y,z) -> 100) do
+        @fact_throws testmodule2.List(100)
+        @fact_throws testmodule2.List(100, testmodule2.List(200))
+        @fact_throws testmodule2.List([1, 2, 3])
+        @fact testmodule2.List(1,2,3) => 100
+        @fact typeof(testmodule2.List(1,2,3)) => not(testmodule2.List)
       end
     end
   end
@@ -532,12 +519,12 @@ facts("Patch object tests") do
   mynewconstructor(x,y,z) = 100
 
   context("patch constructor with a method") do
-    checkbeforeandafter(checklistconstruction) do
-      patch(listeroo, :List, mynewconstructor) do
-        @fact_throws listeroo.List(100)
-        @fact_throws listeroo.List(100, listeroo.List(200))
-        @fact_throws listeroo.List([1, 2, 3])
-        @fact listeroo.List(1,2,3) => 100
+    checkbeforeandafter(checkmodule2) do
+      patch(testmodule2, :List, mynewconstructor) do
+        @fact_throws testmodule2.List(100)
+        @fact_throws testmodule2.List(100, testmodule2.List(200))
+        @fact_throws testmodule2.List([1, 2, 3])
+        @fact testmodule2.List(1,2,3) => 100
       end
     end
   end
