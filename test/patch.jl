@@ -45,6 +45,9 @@ module testmodule2
   lst = List([40,30,20,10])
 end
 
+# A global (outside of a module) we can use for testing.
+mylist = testmodule2.List(1, testmodule2.List(2, testmodule2.List(3, testmodule2.List(4))))
+
 # This function checks that testmodule1 works as defined above, we run it before and after
 # each test to show that the patching has worked
 function checkmodule1()
@@ -89,7 +92,6 @@ function checkmodule2()
   @fact_throws testmodule2.List(1,2,3)
 end
 
-
 # This function checks that testmodule1 and testmodule1 work as defined above, we run it
 # before and after each test to show that the patching has worked
 function checkmodules1and2()
@@ -97,19 +99,19 @@ function checkmodules1and2()
   checkmodule2()
 end
 
-# Runs the supplied check function before and after fn
-function checkbeforeandafter(fn::Function, check::Function)
-  check()
-  try
-    return fn()
-  finally
-    check()
-  end
+# Checks that mylist is still as it was defined to be above, we run it before and after tests
+# to show that the patching is working
+function checkmylist()
+  @fact mylist.value => 1
+  @fact mylist.next.value => 2
+  @fact mylist.next.next.value => 3
+  @fact mylist.next.next.next.value => 4
 end
 
-# a method we will patch in over other methods for testing
-fakemethod(x) = 200
-fakemethod(x,y) = 400
+# Runs the supplied check function before and after fn
+function checkbeforeandafter(fn::Function, check::Function)
+  return fixture(fn, :($check()), :($check()))
+end
 
 # Our Patch test suite
 facts("Patch tests") do
@@ -243,9 +245,13 @@ facts("Patch tests") do
     end
   end
 
+  # a method we will patch in over other methods for testing
+  testmethod(x) = 200
+  testmethod(x,y) = 400
+
   context("patch test2lambda with a method") do
     checkbeforeandafter(checkmodule2) do
-      patch(testmodule2, :test2lambda, fakemethod) do
+      patch(testmodule2, :test2lambda, testmethod) do
         @fact testmodule2.test2lambda(1) => 200
         @fact testmodule2.test2lambda(2) => 200
         @fact testmodule2.test2lambda(1,10) => 400
@@ -256,7 +262,7 @@ facts("Patch tests") do
 
   context("patch test1lambda with a method") do
     checkbeforeandafter(checkmodules1and2) do
-      patch(testmodule2, :test1lambda, fakemethod) do
+      patch(testmodule2, :test1lambda, testmethod) do
         @fact testmodule2.test1lambda(1) => 200
         @fact testmodule2.test1lambda(2) => 200
         @fact testmodule2.test1lambda(1,10) => 400
@@ -267,7 +273,7 @@ facts("Patch tests") do
 
   context("patch test2function with a method") do
     checkbeforeandafter(checkmodule2) do
-      patch(testmodule2, :test2function, fakemethod) do
+      patch(testmodule2, :test2function, testmethod) do
         @fact testmodule2.test2function(1) => 200
         @fact testmodule2.test2function(2) => 200
         @fact testmodule2.test2function(1,10) => 400
@@ -278,7 +284,7 @@ facts("Patch tests") do
 
   context("patch test2nonconstmethod with a method") do
     checkbeforeandafter(checkmodule2) do
-      patch(testmodule2, :test2nonconstmethod, fakemethod) do
+      patch(testmodule2, :test2nonconstmethod, testmethod) do
         @fact testmodule2.test2nonconstmethod(1) => 200
         @fact testmodule2.test2nonconstmethod(2) => 200
         @fact testmodule2.test2nonconstmethod(1,10) => 400
@@ -289,7 +295,7 @@ facts("Patch tests") do
 
   context("patch test1nonconstmethod with a method") do
     checkbeforeandafter(checkmodules1and2) do
-      patch(testmodule2, :test1nonconstmethod, fakemethod) do
+      patch(testmodule2, :test1nonconstmethod, testmethod) do
         @fact testmodule2.test1nonconstmethod(1) => 200
         @fact testmodule2.test1nonconstmethod(2) => 200
         @fact testmodule2.test1nonconstmethod(1,10) => 400
@@ -300,7 +306,7 @@ facts("Patch tests") do
 
   context("patch test2constmethod with a method") do
     checkbeforeandafter(checkmodule2) do
-      patch(testmodule2, :test2constmethod, fakemethod) do
+      patch(testmodule2, :test2constmethod, testmethod) do
         @fact testmodule2.test2constmethod(1) => 200
         @fact testmodule2.test2constmethod(2) => 200
         @fact testmodule2.test2constmethod(1,10) => 400
@@ -311,7 +317,7 @@ facts("Patch tests") do
 
   context("patch test1constmethod with a method") do
     checkbeforeandafter(checkmodules1and2) do
-      patch(testmodule1, :test1constmethod, fakemethod) do
+      patch(testmodule1, :test1constmethod, testmethod) do
         @fact testmodule2.test1constmethod(1) => 200
         @fact testmodule2.test1constmethod(2) => 200
         @fact testmodule2.test1constmethod(1,10) => 400
@@ -354,10 +360,10 @@ facts("Patch tests") do
   context("Ensure that the return value of the wrapped fn is always returned") do
     checkbeforeandafter(checkmodule2) do
       @fact patch(()->123, testmodule2, :test2variable, 100) => 123
-      @fact patch(()->456, testmodule2, :test2constmethod, fakemethod) => 456
-      @fact patch(()->789, testmodule2, :test2nonconstmethod, fakemethod) => 789
-      @fact patch(()->123, testmodule2, :test2function, fakemethod) => 123
-      @fact patch(()->456, testmodule2, :test2lambda, fakemethod) => 456
+      @fact patch(()->456, testmodule2, :test2constmethod, testmethod) => 456
+      @fact patch(()->789, testmodule2, :test2nonconstmethod, testmethod) => 789
+      @fact patch(()->123, testmodule2, :test2function, testmethod) => 123
+      @fact patch(()->456, testmodule2, :test2lambda, testmethod) => 456
 
       @fact patch(()->789, testmodule2, :test2nonconstmethod, ()->200) => 789
       @fact patch(()->123, testmodule2, :test2function, ()->200) => 123
@@ -429,15 +435,6 @@ facts("Patch tests") do
     end
   end
 
-  mylist = testmodule2.List(1, testmodule2.List(2, testmodule2.List(3, testmodule2.List(4))))
-
-  function checkmylist()
-    @fact mylist.value => 1
-    @fact mylist.next.value => 2
-    @fact mylist.next.next.value => 3
-    @fact mylist.next.next.next.value => 4
-  end
-
   context("patch first value of mylist") do
     checkbeforeandafter(checkmylist) do
       patch(mylist, :value, 100) do
@@ -482,7 +479,8 @@ facts("Patch tests") do
     end
   end
 
-  myotherlist = testmodule2.List([4,3,2,1])
+  # A different list to use in tests
+  const myotherlist = testmodule2.List([4,3,2,1])
 
   context("patch global variable") do
     checkbeforeandafter(checkmylist) do
@@ -516,6 +514,7 @@ facts("Patch tests") do
     end
   end
 
+  # A method to patch in as the List constructor
   mynewconstructor(x,y,z) = 100
 
   context("patch constructor with a method") do
