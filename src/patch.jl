@@ -7,7 +7,7 @@ function patch(fn::Function, mod::Module, name::Symbol, new::Function)
     if !isgeneric(new)
       return patch(old, :env, nothing) do
         patch(old, :fptr, new.fptr) do
-          fixture(fn, mod, :($name.code = $new.code), :())
+          fixture(fn, Task(()->old.code=new.code))
         end
       end
     else
@@ -34,7 +34,11 @@ end
 ExprOrSymbol = Union(Expr,Symbol)
 
 function patchimpl(fn::Function, mod::Module, name::ExprOrSymbol, old::Any, new::Any)
-  return fixture(fn, mod, :($name = $new), :($name = $old))
+  return fixture(fn, Task() do
+      mod.eval(:($name = $new))
+      produce()
+      mod.eval(:($name = $old))
+    end)
 end
 
 macro patch(expr::Expr, name::Symbol, new::Any)

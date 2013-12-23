@@ -1,14 +1,10 @@
 export fixture
 
-function fixture(fn::Function, setup::Expr, teardown::Expr)
-  return fixture(fn, Core, setup, teardown)
-end
-
-function fixture(fn::Function, mod::Module, setup::Expr, teardown::Expr)
-  mod.eval(setup)
+function fixture(fn::Function, tsk::Task)
+  consume(tsk)
   try
     return fn()
   finally
-    mod.eval(teardown)
+    consume(tsk)
   end
 end

@@ -110,7 +110,11 @@ end
 
 # Runs the supplied check function before and after fn
 function checkbeforeandafter(fn::Function, check::Function)
-  return fixture(fn, :($check()), :($check()))
+  return fixture(fn, Task() do
+    check()
+    produce()
+    check()
+  end)
 end
 
 # Our Patch test suite
