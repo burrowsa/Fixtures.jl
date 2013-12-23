@@ -16,24 +16,18 @@ function patch(fn::Function, mod::Module, name::Symbol, new::Function)
       end
     end
   else
-    return patchimpl(fn, mod, name, old, new)
+    return patchimpl(fn, mod, name, new)
   end
 end
 
-function patch(fn::Function, obj::Any, name::Symbol, new::Any)
-  const old_expr = :($obj.$name)
-  const old = eval(old_expr)
-  return patchimpl(fn, Core, old_expr, old, new)
-end
+patch(fn::Function, obj::Any, name::Symbol, new::Any) = patchimpl(fn, Core, :($obj.$name), new)
 
-function patch(fn::Function, mod::Module, name::Symbol, new::Any)
-  const old = mod.eval(name)
-  return patchimpl(fn, mod, name, old, new)
-end
+patch(fn::Function, mod::Module, name::Symbol, new::Any) = patchimpl(fn, mod, name, new)
 
 ExprOrSymbol = Union(Expr,Symbol)
 
-function patchimpl(fn::Function, mod::Module, name::ExprOrSymbol, old::Any, new::Any)
+function patchimpl(fn::Function, mod::Module, name::ExprOrSymbol, new::Any)
+  const old = mod.eval(name)
   return fixture(fn, Task() do
       mod.eval(:($name = $new))
       produce()
