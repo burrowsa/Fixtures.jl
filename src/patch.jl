@@ -1,38 +1,45 @@
 export patch, @patch
 
+# TODO: find a nice way to combine coroutines
 
-function patch(fn::Function, mod::Module, name::Symbol, new::Function)
+function patch(mod::Module, name::Symbol, new::Function)
   const old = mod.eval(name)
   if isgeneric(old) && isconst(mod, name)
     if !isgeneric(new)
-      return patch(old, :env, nothing) do
-        patch(old, :fptr, new.fptr) do
-          fixture(fn, Task(()->old.code=new.code))
+      return function()
+        patch(old, :env, nothing) do
+          patch(old, :fptr, new.fptr) do
+            fixture(produce, Task(()->old.code=new.code))
+          end
         end
       end
     else
-      return patch(old, :env, new.env) do
-        patch(fn, old, :fptr, new.fptr)
+      return function()
+        patch(old, :env, new.env) do
+          patch(produce, old, :fptr, new.fptr)
+        end
       end
     end
   else
-    return patchimpl(fn, mod, name, new)
+    return patchimpl(mod, name, new)
   end
 end
 
-patch(fn::Function, obj::Any, name::Symbol, new::Any) = patchimpl(fn, Core, :($obj.$name), new)
+patch(obj::Any, name::Symbol, new::Any) = patchimpl(Core, :($obj.$name), new)
 
-patch(fn::Function, mod::Module, name::Symbol, new::Any) = patchimpl(fn, mod, name, new)
+patch(mod::Module, name::Symbol, new::Any) = patchimpl(mod, name, new)
+
+patch(fn::Function, what::Any, name::Symbol, new::Any) = fixture(fn, Task(patch(what, name, new)))
 
 ExprOrSymbol = Union(Expr,Symbol)
 
-function patchimpl(fn::Function, mod::Module, name::ExprOrSymbol, new::Any)
-  const old = mod.eval(name)
-  return fixture(fn, Task() do
-      mod.eval(:($name = $new))
-      produce()
-      mod.eval(:($name = $old))
-    end)
+function patchimpl(mod::Module, name::ExprOrSymbol, new::Any)
+  return function()
+    const old = mod.eval(name)
+    mod.eval(:($name = $new))
+    produce()
+    mod.eval(:($name = $old))
+  end
 end
 
 macro patch(expr::Expr, name::Symbol, new::Any)
