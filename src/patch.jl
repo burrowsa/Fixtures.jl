@@ -7,17 +7,14 @@ function patch(mod::Module, name::Symbol, new::Function)
   if isgeneric(old) && isconst(mod, name)
     if !isgeneric(new)
       return function()
-        patch(old, :env, nothing) do
-          patch(old, :fptr, new.fptr) do
-            fixture(produce, Task(()->old.code=new.code))
-          end
-        end
+        fixture(produce, patch(old, :env, nothing),
+                         patch(old, :fptr, new.fptr),
+                         ()->old.code=new.code)
       end
     else
       return function()
-        patch(old, :env, new.env) do
-          patch(produce, old, :fptr, new.fptr)
-        end
+        fixture(produce, patch(old, :env, new.env),
+                         patch(old, :fptr, new.fptr))
       end
     end
   else
@@ -29,7 +26,7 @@ patch(obj::Any, name::Symbol, new::Any) = patchimpl(Core, :($obj.$name), new)
 
 patch(mod::Module, name::Symbol, new::Any) = patchimpl(mod, name, new)
 
-patch(fn::Function, what::Any, name::Symbol, new::Any) = fixture(fn, Task(patch(what, name, new)))
+patch(fn::Function, what::Any, name::Symbol, new::Any) = fixture(fn, patch(what, name, new))
 
 ExprOrSymbol = Union(Expr,Symbol)
 

@@ -1,4 +1,3 @@
-using Base.Test
 using mock
 using FactCheck
 
@@ -110,7 +109,7 @@ end
 
 # Runs the supplied check function before and after fn
 function checkbeforeandafter(fn::Function, check::Function)
-  return fixture(fn, Task() do
+  return fixture(fn, () -> begin
     check()
     produce()
     check()

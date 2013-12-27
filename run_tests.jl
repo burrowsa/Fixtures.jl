@@ -1,4 +1,5 @@
-my_tests = ["test/patch.jl"]
+my_tests = ["test/patch.jl",
+            "test/fixture.jl"]
 
 println("Running tests:")
 for my_test in my_tests
