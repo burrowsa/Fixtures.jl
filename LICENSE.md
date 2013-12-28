@@ -1,4 +1,4 @@
-The mock.jl package is licensed under the MIT Expat License:
+The Fixtures.jl package is licensed under the MIT Expat License:
 
 > Copyright (c) 2013: Andrew Burrows.
 >

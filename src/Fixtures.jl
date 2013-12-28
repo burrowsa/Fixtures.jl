@@ -1,4 +1,4 @@
-module mock
+module Fixtures
 include("fixture.jl")
 include("patch.jl")
 include("registered_fixtures.jl")
