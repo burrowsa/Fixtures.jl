@@ -1,4 +1,6 @@
 module mock
 include("fixture.jl")
 include("patch.jl")
+include("registered_fixtures.jl")
+include("fact_check_support.jl")
 end
