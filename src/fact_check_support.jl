@@ -7,22 +7,16 @@ if begin
      end
    end
 
-  export with_fixtures, context, facts
+  export using_fixtures, context, facts
 
   immutable ApplyFixturesFlag end
-  with_fixtures = ApplyFixturesFlag()
+  using_fixtures = ApplyFixturesFlag()
 
   import FactCheck.facts
-  facts(f::Function, applyfixtures::ApplyFixturesFlag) = facts(f, nothing, applyfixtures)
-  facts(fn::Function, desc, applyfixtures::ApplyFixturesFlag) = apply_fixtures(()->facts(fn, desc), :facts)
-
-  facts(f::Function, fixtures::Function...) = facts(f, nothing, fixtures...)
-  facts(fn::Function, desc, fixtures::Function...) = fixture(()->facts(fn, desc), fixtures...)
+  facts(fn::Function, applyfixtures::ApplyFixturesFlag, otherfixtures::Function...) = facts(fn, nothing, applyfixtures, otherfixtures...)
+  facts(fn::Function, desc, applyfixtures::ApplyFixturesFlag, otherfixtures::Function...) = apply_fixtures(()->facts(fn, desc), :facts, otherfixtures...)
 
   import FactCheck.context
-  context(f::Function, applyfixtures::ApplyFixturesFlag) = context(f, nothing, applyfixtures)
-  context(fn::Function, desc, applyfixtures::ApplyFixturesFlag) = apply_fixtures(()->context(fn, desc), :context)
-
-  context(f::Function, fixtures::Function...) = context(f, nothing, fixtures...)
-  context(fn::Function, desc, fixtures::Function...) = fixture(()->context(fn, desc), fixtures...)
+  context(f::Function, applyfixtures::ApplyFixturesFlag, otherfixtures::Function...) = context(f, nothing, applyfixtures, otherfixtures...)
+  context(fn::Function, desc, applyfixtures::ApplyFixturesFlag, otherfixtures::Function...) = apply_fixtures(()->context(fn, desc), :context, otherfixtures...)
 end

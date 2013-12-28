@@ -18,7 +18,7 @@ function add_fixture(before::Function, after::Function, scope::Symbol=:default)
               end, scope)
 end
 
-function apply_fixtures(fn::Function, scope::Symbol=:default)
+function apply_fixtures(fn::Function, scope::Symbol=:default, otherfixtures::Function...)
   function scope_fixtures()
     # Allows fixtures to de defined within in nested scopes
     const old = fixtures
@@ -27,9 +27,5 @@ function apply_fixtures(fn::Function, scope::Symbol=:default)
     global fixtures = old
   end
 
-  if haskey(fixtures, scope)
-    fixture(fn, scope_fixtures, fixtures[scope]...)
-  else
-    fixture(fn, scope_fixtures)
-  end
+  return fixture(fn, scope_fixtures, otherfixtures..., get(fixtures, scope, ())...)
 end
