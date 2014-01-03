@@ -77,7 +77,7 @@ You can also nest scopes. If a fixture is added to a nested scope then it will b
         println("Bonjour tout le monde")
     end
 
-using demo() and another() defined above the output is:
+using `demo()` and `another()` as defined above, the output is:
 
     before
     avant
@@ -89,7 +89,7 @@ using demo() and another() defined above the output is:
     Bonjour tout le monde
     after
 
-There is also a handy add_fixture method that lets you define the setup and teardown functions separately:
+There is also a handy `add_fixture` method that lets you define the setup and teardown functions separately:
 
     function add_fixture(before::Function, after::Function, scope::Symbol)
 
@@ -125,7 +125,7 @@ we might want to isolate it from the real filesystem. We can do this by patching
         @test firstline("foobar.txt") == "Hello Julia"
     end
 
-You can use patch() as above or you can use it with fixture(), add_fixture(), apply_fixtures() etc.
+You can use `patch()` as above or you can use it with `fixture()`, `add_fixture()`, `apply_fixtures()` etc.
 
     add_fixture(patch(Base, :open, fake_open), :mock_io)
     
