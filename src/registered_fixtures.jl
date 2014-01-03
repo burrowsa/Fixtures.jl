@@ -8,9 +8,10 @@ function add_fixture(fixture::Function, scope::Symbol)
   else
     fixtures[scope] = (fixture,)
   end
+  return
 end
 
-function add_fixture(before::Function, after::Function, scope::Symbol=:default)
+function add_fixture(before::Function, after::Function, scope::Symbol)
   add_fixture(function()
                 before()
                 produce()

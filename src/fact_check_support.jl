@@ -7,7 +7,7 @@ if begin
      end
    end
 
-  export using_fixtures, context, facts
+  export using_fixtures
 
   immutable ApplyFixturesFlag end
   using_fixtures = ApplyFixturesFlag()
