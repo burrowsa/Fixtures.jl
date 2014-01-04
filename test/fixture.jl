@@ -1,3 +1,6 @@
+module FixtureTests
+
+
 using Fixtures
 using FactCheck
 
@@ -152,5 +155,8 @@ facts("Fixture tests") do
     @fact x => 200
     @fact y => 200
   end
+
+end
+
 
 end

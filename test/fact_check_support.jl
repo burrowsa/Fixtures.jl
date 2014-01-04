@@ -1,3 +1,5 @@
+module FactCheckSupportTests
+
 using Fixtures
 using FactCheck
 
@@ -28,5 +30,7 @@ facts("FactCheck support tests", using_fixtures) do
   end
 
   @fact x => 0
+
+end
 
 end

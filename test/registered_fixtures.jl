@@ -1,3 +1,5 @@
+module RegisteredFixturesTests
+
 using Fixtures
 using FactCheck
 
@@ -96,4 +98,6 @@ facts("Registered Fixtures tests") do
       @fact Fixtures.fixtures => Dict()
     end
   end
+end
+
 end
