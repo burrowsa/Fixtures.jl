@@ -118,7 +118,7 @@ A common type of fixture is to patch a function, method or value within a module
         end
     end
 
-we might want to isolate it from the real filesystem. We can do this by patching Base.open with our own implementation, just for the duration of the test:
+we might want to isolate it from the real filesystem. We can do this by patching `Base.open` with our own implementation, just for the duration of the test:
 
     function fake_open(filename)
         return IOBuffer("Hello Julia\nGoodbye Julia")
@@ -136,7 +136,7 @@ You can use `patch()` as above or you can use it with `fixture()`, `add_fixture(
         @test firstline("foobar.txt") == "Hello Julia"
     end
 
-But Fixtures.jl also provides mocks so we can patch open with a mock, this also allows us to verify it was called:
+But Fixtures.jl also provides mocks so we can patch `open` with a mock, this also allows us to verify it was called:
 
     mock_open = mock(return_value=IOBuffer("Hello Julia\nGoodbye Julia"))
     
@@ -157,7 +157,7 @@ Mocks are just generated functions that record their arguments everytime they ar
     mock3 = mock()
     @test mock(100) == nothing
     
-The `call()` function makes it easy to express and test the expected calls to a mock (see above). Any you can ignore any given argument by using `ANY`
+The `call()` function makes it easy to express and test the expected calls to a mock (see above). And you can ignore any given argument by using `ANY`
 
     mock1 = mock()
     mock1(100, 200)
