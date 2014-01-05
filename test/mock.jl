@@ -205,6 +205,25 @@ facts("Mock tests") do
     @fact my_mock(100) => nothing
     @fact calls(my_mock) => [call(ANY)]
   end
+
+  context("Using a mock to patch Base.open") do
+    function firstline(filename)
+      f = open(filename)
+      try
+        return chomp(readlines(f)[1])
+      finally
+        close(f)
+      end
+    end
+
+    mock_open = mock(return_value=IOBuffer("Hello Julia\nGoodbye Julia"))
+
+    patch(Base, :open, mock_open) do
+      @fact firstline("foobar.txt") => "Hello Julia"
+    end
+
+    @fact calls(mock_open) => [call("foobar.txt")]
+  end
 end
 
 end
