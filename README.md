@@ -110,15 +110,18 @@ For users of FactCheck.jl methods are provided to make it simple to use Fixtures
 A common type of fixture is to patch a function, method or value within a module or object. This is most often done in unit testing to isolate the function under test from the rest of the system. Fixtures.jl provides a patch fixture to do this. For example if we wanted to test this function:
 
     function firstline(filename)
-        open(filename) do f
-            return chomp(readlines(f)[1])
+        f = open(filename)
+        try
+          return chomp(readlines(f)[1])
+        finally
+          close(f)
         end
     end
 
 we might want to isolate it from the real filesystem. We can do this by patching Base.open with our own implementation, just for the duration of the test:
 
-    function fake_open(fn, filename)
-        return fn(IOBuffer("Hello Julia\nGoodbye Julia"))
+    function fake_open(filename)
+        return IOBuffer("Hello Julia\nGoodbye Julia")
     end
     
     patch(Base, :open, fake_open) do
@@ -132,3 +135,32 @@ You can use `patch()` as above or you can use it with `fixture()`, `add_fixture(
     apply_fixtures(:mock_io) do
         @test firstline("foobar.txt") == "Hello Julia"
     end
+
+But Fixtures.jl also provides mocks so we can patch open with a mock, this also allows us to verify it was called:
+
+    mock_open = mock(return_value=IOBuffer("Hello Julia\nGoodbye Julia"))
+    
+    patch(Base, :open, mock_open) do
+        @test firstline("foobar.txt") == "Hello Julia"
+    end
+    
+    @test calls(mock_open) == [call("foobar.txt")]
+
+Mocks are just generated functions that record their arguments everytime they are called. You can access the call history using `calls(mock)` as shown above and clear it with `reset(mock)`. When creating a mock you can (optionally) specify its return value or an implementation for the mock:
+
+    mock1 = mock(return_value=200)
+    @test mock1(100) == 200
+    
+    mock2 = mock(side_effect=x->x+200)
+    @test mock2(100) == 300
+    
+    mock3 = mock()
+    @test mock(100) == nothing
+    
+The `call()` function makes it easy to express and test the expected calls to a mock (see above). Any you can ignore any given argument by using `ANY`
+
+    mock1 = mock()
+    mock1(100, 200)
+    
+    calls(mock1) == [ call(ANY, 200) ]
+
