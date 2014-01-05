@@ -160,7 +160,7 @@ Mocks are just generated functions that record their arguments everytime they ar
 The `call()` function makes it easy to express and test the expected calls to a mock (see above). And you can ignore any given argument by using `ANY`
 
     mock1 = mock()
-    mock1(100, 200)
+    mock1(rand(), 200)
     
     calls(mock1) == [ call(ANY, 200) ]
 
