@@ -1,6 +1,6 @@
 # Fixtures
 
-Fixtures, mocks and patching to improve your test life with Julia
+Fixtures, mocks and patching to improve your test life with Julia.
 
 [![Build Status](https://travis-ci.org/burrowsa/Fixtures.jl.png?branch=master)](https://travis-ci.org/burrowsa/Fixtures.jl)
 
@@ -20,9 +20,9 @@ Using Fixtures.jl you can define a fixture such that some setup code is called b
     
 and it produces this output:
 
-    before
-    hello world
-    after
+> before  
+hello world  
+after
 
 you can use more than one fixture at a time:
 
@@ -56,6 +56,15 @@ often you want to resuse the same fixture several times, for example you might w
 
 You can define multiple fixtures for a named scope and they will all be used.
 
+    function fixture1()
+    end
+    
+    function fixture2()
+    end
+    
+    function fixture3()
+    end
+
     add_fixture(fixture1, :myscope)
     add_fixture(fixture2, :myscope)
     add_fixture(fixture3, :myscope)
@@ -71,27 +80,24 @@ You can also nest scopes. If a fixture is added to a nested scope then it will b
         end
     end
     
-    println(">>>>>>>>>>")
-    
     apply_fixtures(:childscope) do
         println("Bonjour tout le monde")
     end
 
 using `demo()` and `another()` as defined above, the output is:
 
-    before
-    avant
-    hello world
-    après
-    after
-    >>>>>>>>>>
-    before
-    Bonjour tout le monde
-    after
+> before  
+avant  
+hello world  
+après  
+after  
+before  
+Bonjour tout le monde  
+after
 
 There is also a handy `add_fixture` method that lets you define the setup and teardown functions separately:
 
-    function add_fixture(before::Function, after::Function, scope::Symbol)
+`function add_fixture(before::Function, after::Function, scope::Symbol)`
 
 For users of FactCheck.jl methods are provided to make it simple to use Fixtures.jl, here is an example using the two packages together:
 
@@ -112,9 +118,9 @@ A common type of fixture is to patch a function, method or value within a module
     function firstline(filename)
         f = open(filename)
         try
-          return chomp(readlines(f)[1])
+            return chomp(readlines(f)[1])
         finally
-          close(f)
+            close(f)
         end
     end
 
@@ -125,7 +131,7 @@ we might want to isolate it from the real filesystem. We can do this by patching
     end
     
     patch(Base, :open, fake_open) do
-        @test firstline("foobar.txt") == "Hello Julia"
+        @Test.test firstline("foobar.txt") == "Hello Julia"
     end
 
 You can use `patch()` as above or you can use it with `fixture()`, `add_fixture()`, `apply_fixtures()` etc.
@@ -133,34 +139,42 @@ You can use `patch()` as above or you can use it with `fixture()`, `add_fixture(
     add_fixture(patch(Base, :open, fake_open), :mock_io)
     
     apply_fixtures(:mock_io) do
-        @test firstline("foobar.txt") == "Hello Julia"
+        @Test.test firstline("foobar.txt") == "Hello Julia"
     end
 
 But Fixtures.jl also provides mocks so we can patch `open` with a mock, this also allows us to verify it was called:
+    
+    function firstline(filename)
+        f = open(filename)
+        try
+            return chomp(readlines(f)[1])
+        finally
+            close(f)
+        end
+    end
 
     mock_open = mock(return_value=IOBuffer("Hello Julia\nGoodbye Julia"))
-    
-    patch(Base, :open, mock_open) do
-        @test firstline("foobar.txt") == "Hello Julia"
-    end
-    
-    @test calls(mock_open) == [call("foobar.txt")]
 
+    patch(Base, :open, mock_open) do
+      @Test.test firstline("foobar.txt") == "Hello Julia"
+    end
+
+    @Test.test calls(mock_open) == [call("foobar.txt")]
+    
 Mocks are just generated functions that record their arguments everytime they are called. You can access the call history using `calls(mock)` as shown above and clear it with `reset(mock)`. When creating a mock you can (optionally) specify its return value or an implementation for the mock:
 
     mock1 = mock(return_value=200)
-    @test mock1(100) == 200
+    @Test.test mock1(100) == 200
     
     mock2 = mock(side_effect=x->x+200)
-    @test mock2(100) == 300
+    @Test.test mock2(100) == 300
     
     mock3 = mock()
-    @test mock(100) == nothing
+    @Test.test mock3(100) == nothing
     
 The `call()` function makes it easy to express and test the expected calls to a mock (see above). And you can ignore any given argument by using `ANY`
 
     mock1 = mock()
     mock1(rand(), 200)
     
-    calls(mock1) == [ call(ANY, 200) ]
-
+    @Test.test calls(mock1) == [ call(ANY, 200) ]
