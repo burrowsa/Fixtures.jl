@@ -141,6 +141,8 @@ You can use `patch()` as above or you can use it with `fixture()`, `add_fixture(
     apply_fixtures(:mock_io) do
         @Test.test firstline("foobar.txt") == "Hello Julia"
     end
+    
+> **Note:** Due to a current [issue](https://github.com/JuliaLang/julia/issues/265) in Julia your ability to patch a function may be limited if the code calling that function has already been called.
 
 But Fixtures.jl also provides mocks so we can patch `open` with a mock, this also allows us to verify it was called:
     

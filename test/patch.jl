@@ -448,8 +448,34 @@ facts("Patch tests", using_fixtures) do
     end
     @fact result => myotherlist
   end
-
 end
 
+module BrokenExample
+  inner_method(x) = 12345
+  outer_method(x) = inner_method(x)
+end
+
+facts("Broken stuff") do
+  context("patch is nobbled by method caching/inlining GH265") do
+    @fact BrokenExample.outer_method(100) => 12345
+
+    # because outer_method(int64) has already been compiled
+    # we can't patch it to use our implementation of inner_method
+    # See https://github.com/JuliaLang/julia/issues/265
+    patch(BrokenExample, :inner_method, x->54321) do
+      @fact BrokenExample.outer_method(100) => not(54321) # :(
+    end
+    @fact BrokenExample.outer_method(100) => 12345
+
+    # But if we change type then we are able to patch it
+    patch(BrokenExample, :inner_method, x->987654) do
+      @fact BrokenExample.outer_method(100.0) => 987654
+    end
+
+    # and it is all ok afterwards
+    @fact BrokenExample.outer_method(100) => 12345
+    @fact BrokenExample.outer_method(100.0) => 12345
+  end
+end
 
 end
