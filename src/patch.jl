@@ -1,6 +1,5 @@
 export patch, @patch
 
-# TODO: find a nice way to combine coroutines
 
 function patch(mod::Module, name::Symbol, new::Function)
   const old = mod.eval(name)
@@ -28,9 +27,7 @@ patch(mod::Module, name::Symbol, new::Any) = patchimpl(mod, name, new)
 
 patch(fn::Function, what::Any, name::Symbol, new::Any) = fixture(fn, patch(what, name, new))
 
-ExprOrSymbol = Union(Expr,Symbol)
-
-function patchimpl(mod::Module, name::ExprOrSymbol, new::Any)
+function patchimpl(mod::Module, name::Union(Expr,Symbol), new::Any)
   return function()
     const old = mod.eval(name)
     mod.eval(:($name = $new))
