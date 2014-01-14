@@ -188,22 +188,10 @@ facts("Mock tests") do
     @fact calls(mock3) => [call(300), call(600)]
   end
 
-  context("ANY matches anything") do
-    @fact ANY => ANY
-    @fact 100 => ANY
-    @fact ANY => 100
-    @fact "hello" => ANY
-    @fact ANY => "hello"
-    @fact [] => ANY
-    @fact ANY => []
-    @fact [100] => ANY
-    @fact ANY => [100]
-  end
-
-  context("Using ANY with a mock") do
+  context("Using ANYTHING with a mock") do
     my_mock = mock()
     @fact my_mock(100) => nothing
-    @fact calls(my_mock) => [call(ANY)]
+    @fact calls(my_mock) => [call(ANYTHING)]
   end
 
   context("Using a mock to patch Base.open") do
