@@ -174,9 +174,22 @@ Mocks are just generated functions that record their arguments everytime they ar
     mock3 = mock()
     @Test.test mock3(100) == nothing
     
-The `call()` function makes it easy to express and test the expected calls to a mock (see above). And you can ignore any given argument by using `ANY`
+The `call()` function makes it easy to express and test the expected calls to a mock (see above). And you can ignore any given argument by using `ANYTHING`
 
     mock1 = mock()
     mock1(rand(), 200)
     
-    @Test.test calls(mock1) == [ call(ANY, 200) ]
+    @Test.test calls(mock1) == [ call(ANYTHING, 200) ]
+    
+`ANYTHING` is just one example of a matcher, a kind of wildcard that can be used when verifying mock calls. Fixtures.jl provides the following matchers (and it is possible to define your own):
+
+* `anything_of_type(T::Type)`
+* `anything_in(value::Any)`
+* `anything_containing(value::Any)`
+
+So we could be a bit stricter in our previous example:
+
+    mock1 = mock()
+    mock1(rand(), 200)
+    
+    @Test.test calls(mock1) == [ call(anything_of_type(Number), 200) ]

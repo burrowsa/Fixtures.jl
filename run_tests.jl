@@ -3,6 +3,7 @@ my_tests = ["test/fixture.jl",
             "test/fact_check_support.jl",
             "test/patch.jl",
             "test/mock.jl",
+            "test/matchers.jl",
             "test/README.jl"]
 
 println("Running tests:")

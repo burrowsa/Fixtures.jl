@@ -1,4 +1,4 @@
-export mock, calls, reset, call, ANY
+export mock, calls, reset, call
 
 global _calls = Dict{Function, Array{(Tuple, Array{Any, 1}), 1}}()
 
@@ -26,9 +26,3 @@ end
 function call(args::Any...; kwargs...)
   return args, kwargs
 end
-
-immutable Anything end
-==(lhs::Anything, rhs::Anything) = true
-==(lhs::Anything, rhs::Any) = true
-==(lhs::Any, rhs::Anything) = true
-const ANY = Anything()
