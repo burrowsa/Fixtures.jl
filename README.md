@@ -8,13 +8,16 @@ Using Fixtures.jl you can define a fixture such that some setup code is called b
 
     using Fixtures
 
-    function demo()
+    function demo(fn::Function)
         println("before")
-        produce()
-        println("after")
+        try
+            fn()
+        finally
+            println("after")
+        end
     end
     
-    fixture(demo) do
+    demo() do
         println("hello world")
     end
     
@@ -26,25 +29,30 @@ after
 
 you can use more than one fixture at a time:
 
-    function another()
+    function another(fn::Function)
         println("avant")
-        produce()
-        println("après")
+        try
+            fn()
+        finally
+            println("après")
+        end
     end
     
-    fixture(demo, another) do
-        println("hello world")
+    demo() do
+        another() do
+            println("hello world")
+        end
     end
 
 often you want to resuse the same fixture several times, for example you might want the same setup and teardown code to run before and after each database test. Using Fixtures.jl you can add fixtures to a named scope then repeatedly use that named scope:
 
-    function testdb()
+    function testdb(fn::Function)
         # setup database
-        produce()
+        fn()
         # teardown database
     end
 
-    add_fixture(testdb, :databasetests)
+    add_fixture(:databasetests, testdb)
     
     apply_fixtures(:databasetests) do
         # some test that uses the database
@@ -56,25 +64,28 @@ often you want to resuse the same fixture several times, for example you might w
 
 You can define multiple fixtures for a named scope and they will all be used.
 
-    function fixture1()
+    function fixture1(fn::Function)
+      fn()
     end
     
-    function fixture2()
+    function fixture2(fn::Function)
+      fn()
     end
     
-    function fixture3()
+    function fixture3(fn::Function)
+      fn()
     end
 
-    add_fixture(fixture1, :myscope)
-    add_fixture(fixture2, :myscope)
-    add_fixture(fixture3, :myscope)
+    add_fixture(:myscope, fixture1)
+    add_fixture(:myscope, fixture2)
+    add_fixture(:myscope, fixture3)
 
 You can also nest scopes. If a fixture is added to a nested scope then it will be removed at the end of the parent scope. An example should make this clearer:
 
-    add_fixture(demo, :childscope)
+    add_fixture(:childscope, demo)
     
     apply_fixtures(:parentscope) do
-        add_fixture(another, :childscope)
+        add_fixture(:childscope, another)
         apply_fixtures(:childscope) do
             println("hello world")
         end
@@ -97,15 +108,15 @@ after
 
 There is also a handy `add_fixture` method that lets you define the setup and teardown functions separately:
 
-`function add_fixture(before::Function, after::Function, scope::Symbol)`
+`function add_fixture(scope::Symbol, before::Function, after::Function)`
 
 For users of FactCheck.jl methods are provided to make it simple to use Fixtures.jl, here is an example using the two packages together:
 
     using FactCheck
     using Fixtures
     
-    add_fixture(demo, :facts)
-    add_fixture(another, :context)
+    add_fixture(:facts, demo)
+    add_fixture(:context, another)
      
     facts("FactCheck support tests", using_fixtures) do
         context("Example with fixtures set on a context level", using_fixtures) do
@@ -134,9 +145,9 @@ we might want to isolate it from the real filesystem. We can do this by patching
         @Test.test firstline("foobar.txt") == "Hello Julia"
     end
 
-You can use `patch()` as above or you can use it with `fixture()`, `add_fixture()`, `apply_fixtures()` etc.
+You can use `patch()` as above or you can use it with `add_fixture()` and `apply_fixtures()`.
 
-    add_fixture(patch(Base, :open, fake_open), :mock_io)
+    add_fixture(:mock_io, patch, Base, :open, fake_open)
     
     apply_fixtures(:mock_io) do
         @Test.test firstline("foobar.txt") == "Hello Julia"

@@ -102,7 +102,7 @@ end
 # Our Patch test suite
 facts("Patch tests", using_fixtures) do
 
-  add_fixture(checkmodules1and2, checkmodules1and2, :context)
+  add_fixture(:context, checkmodules1and2, checkmodules1and2)
 
   context("patch test2variable with another value", using_fixtures) do
     patch(TestModuleTwo, :test2variable, 100) do
@@ -388,11 +388,10 @@ facts("Patch tests", using_fixtures) do
 
 end
 
-
 # Our Patch test suite
 facts("Patch tests", using_fixtures) do
 
-  add_fixture(checkmylist, checkmylist, :context)
+  add_fixture(:context, checkmylist, checkmylist)
 
   context("patch first value of mylist", using_fixtures) do
     patch(mylist, :value, 100) do

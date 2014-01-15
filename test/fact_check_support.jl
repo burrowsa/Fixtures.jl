@@ -11,11 +11,14 @@ facts("FactCheck support tests", using_fixtures) do
 
   global x=0
 
-  add_fixture(:context) do
-    global x=100
-    produce()
-    global x=0
-  end
+  add_fixture(:context, function(fn::Function)
+                          global x=100
+                          try
+                            fn()
+                          finally
+                            global x=0
+                          end
+                        end)
 
   @fact x => 0
 

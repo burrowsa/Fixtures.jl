@@ -1,5 +1,4 @@
-my_tests = ["test/fixture.jl",
-            "test/registered_fixtures.jl",
+my_tests = ["test/registered_fixtures.jl",
             "test/fact_check_support.jl",
             "test/patch.jl",
             "test/mock.jl",

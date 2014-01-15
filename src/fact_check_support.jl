@@ -10,13 +10,13 @@ if begin
   export using_fixtures
 
   immutable ApplyFixturesFlag end
-  using_fixtures = ApplyFixturesFlag()
+  const using_fixtures = ApplyFixturesFlag()
 
   import FactCheck.facts
-  facts(fn::Function, applyfixtures::ApplyFixturesFlag, otherfixtures::Function...) = facts(fn, nothing, applyfixtures, otherfixtures...)
-  facts(fn::Function, desc, applyfixtures::ApplyFixturesFlag, otherfixtures::Function...) = apply_fixtures(()->facts(fn, desc), :facts, otherfixtures...)
+  facts(fn::Function, applyfixtures::ApplyFixturesFlag) = facts(fn, nothing, applyfixtures)
+  facts(fn::Function, desc, applyfixtures::ApplyFixturesFlag) = apply_fixtures(()->facts(fn, desc), :facts)
 
   import FactCheck.context
-  context(f::Function, applyfixtures::ApplyFixturesFlag, otherfixtures::Function...) = context(f, nothing, applyfixtures, otherfixtures...)
-  context(fn::Function, desc, applyfixtures::ApplyFixturesFlag, otherfixtures::Function...) = apply_fixtures(()->context(fn, desc), :context, otherfixtures...)
+  context(f::Function, applyfixtures::ApplyFixturesFlag) = context(f, nothing, applyfixtures)
+  context(fn::Function, desc, applyfixtures::ApplyFixturesFlag) = apply_fixtures(()->context(fn, desc), :context)
 end

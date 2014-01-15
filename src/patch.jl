@@ -1,37 +1,36 @@
 export patch, @patch
 
 
-function patch(mod::Module, name::Symbol, new::Function)
+function patch(fn::Function, mod::Module, name::Symbol, new::Function)
   const old = mod.eval(name)
   if isgeneric(old) && isconst(mod, name)
     if !isgeneric(new)
-      return function()
-        fixture(produce, patch(old, :env, nothing),
-                         patch(old, :fptr, new.fptr),
-                         ()->old.code=new.code)
+      patch(old, :env, nothing) do
+        patch(old, :fptr, new.fptr) do
+          old.code=new.code
+          return fn()
+        end
       end
     else
-      return function()
-        fixture(produce, patch(old, :env, new.env),
-                         patch(old, :fptr, new.fptr))
+      patch(old, :env, new.env) do
+        return patch(fn, old, :fptr, new.fptr)
       end
     end
   else
-    return patchimpl(mod, name, new)
+    return patchimpl(fn, mod, name, new)
   end
 end
 
-patch(obj::Any, name::Symbol, new::Any) = patchimpl(Core, :($obj.$name), new)
+patch(fn::Function, obj::Any, name::Symbol, new::Any) = patchimpl(fn, Core, :($obj.$name), new)
 
-patch(mod::Module, name::Symbol, new::Any) = patchimpl(mod, name, new)
+patch(fn::Function, mod::Module, name::Symbol, new::Any) = patchimpl(fn, mod, name, new)
 
-patch(fn::Function, what::Any, name::Symbol, new::Any) = fixture(fn, patch(what, name, new))
-
-function patchimpl(mod::Module, name::Union(Expr,Symbol), new::Any)
-  return function()
-    const old = mod.eval(name)
-    mod.eval(:($name = $new))
-    produce()
+function patchimpl(fn::Function, mod::Module, name::Union(Expr,Symbol), new::Any)
+  const old = mod.eval(name)
+  mod.eval(:($name = $new))
+  try
+    fn()
+  finally
     mod.eval(:($name = $old))
   end
 end
