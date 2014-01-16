@@ -11,7 +11,7 @@ Using Fixtures.jl you can define a fixture such that some setup code is called b
     function demo(fn::Function)
         println("before")
         try
-            fn()
+            return fn()
         finally
             println("after")
         end
@@ -32,7 +32,7 @@ you can use more than one fixture at a time:
     function another(fn::Function)
         println("avant")
         try
-            fn()
+            return fn()
         finally
             println("après")
         end
@@ -44,11 +44,37 @@ you can use more than one fixture at a time:
         end
     end
 
+The good thing about defining fixtures of this form is that other functions like them already exist in the Julia Standard Library and other libraries, for example `Base.cd()` and they can be used with Fixture.jl too.
+
+To simplify creating fixture functions Fixtures.jl provides the `@fixture` macro. The `demo()` fixture above can be written:
+
+    @fixture function demo()
+        println("before")
+        @>>>
+        println("after")
+    end
+    
+    demo() do
+        println("hello world")
+    end
+
+The `@>>>` symbol divides the setup code from the teardown code. Of course, fixtures like this can take arguments too:
+
+    @fixture function personal_greeting(name)
+        println("Hello $name")
+        @>>>
+        println("Good bye $name")
+    end
+    
+    personal_greeting("John") do
+      println("...")
+    end
+
 often you want to resuse the same fixture several times, for example you might want the same setup and teardown code to run before and after each database test. Using Fixtures.jl you can add fixtures to a named scope then repeatedly use that named scope:
 
-    function testdb(fn::Function)
+    @fixture function testdb()
         # setup database
-        fn()
+        @>>>
         # teardown database
     end
 
@@ -64,16 +90,16 @@ often you want to resuse the same fixture several times, for example you might w
 
 You can define multiple fixtures for a named scope and they will all be used.
 
-    function fixture1(fn::Function)
-      fn()
+    @fixture function fixture1()
+      # ...
     end
     
-    function fixture2(fn::Function)
-      fn()
+    @fixture function fixture2()
+      # ...
     end
     
-    function fixture3(fn::Function)
-      fn()
+    @fixture function fixture3()
+      # ...
     end
 
     add_fixture(:myscope, fixture1)

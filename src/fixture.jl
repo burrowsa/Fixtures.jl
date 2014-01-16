@@ -1,0 +1,73 @@
+export @>>>
+export @fixture
+
+macro >>>()
+  error("@>>> must be in the top level of scope within function")
+end
+
+function flatten_nested_block(ex::Expr)
+  if ex.head==:block && length(ex.args)==1 && ex.args[1].head==:block
+    return flatten_nested_block(ex.args[1])
+  elseif ex.head==:block && length(ex.args)==2 && ex.args[1].head==:line && ex.args[2].head==:block
+    return flatten_nested_block(ex.args[2])
+  elseif ex.head==:block && length(ex.args)==2 && ex.args[2].head==:block
+    return flatten_nested_block(Expr(:block, ex.args[1], ex.args[2].args...))
+  else
+    return ex
+  end
+end
+
+macro fixture(ex::Expr)
+  args = ex.args[1]
+  if ex.head == :function
+    if ex.args[1].head == :call
+      # Add ecbf47d557eb469c9fc755f8e07f11f7::Function between the name and the other arguments
+      ex.args[1].args = [ex.args[1].args[1], :(ecbf47d557eb469c9fc755f8e07f11f7::Function), ex.args[1].args[2:]...]
+    else # ex.args[1].head == :tuple
+      # Add ecbf47d557eb469c9fc755f8e07f11f7::Function as the first argument
+      ex.args[1].args = [:(ecbf47d557eb469c9fc755f8e07f11f7::Function), ex.args[1].args...]
+    end
+  elseif ex.head == :->
+    # Add ecbf47d557eb469c9fc755f8e07f11f7::Function, where depends on how many other args there are
+    if length(ex.args) == 1
+      ex.args = [:(ecbf47d557eb469c9fc755f8e07f11f7::Function), ex.args...]
+    else # length(ex.args) == 2
+      # TODO: not working
+      if typeof(ex.args[1]) == Symbol || ex.args[1].head!=:tuple
+        ex.args[1] = Expr(:tuple, :(ecbf47d557eb469c9fc755f8e07f11f7::Function), ex.args[1])
+      else # ex.args[1].head==:tuple
+        ex.args[1].args = [:(ecbf47d557eb469c9fc755f8e07f11f7::Function), ex.args[1].args...]
+      end
+    end
+  elseif ex.head == :(=) && ex.args[1].head == :call
+    # Add ecbf47d557eb469c9fc755f8e07f11f7::Function between the name and the other arguments
+    ex.args[1].args = [ex.args[1].args[1], :(ecbf47d557eb469c9fc755f8e07f11f7::Function), ex.args[1].args[2:]...]
+  else
+    error("@fixture can only be applied to methods/functions/lambdas")
+  end
+
+  const body = flatten_nested_block(ex.args[end])
+  if body.head == :block
+    i = findfirst(body.args, :(@>>>))
+    if i>0
+      body.args = [body.args[1:(i-1)]...,
+                     quote
+                       try
+                         return ecbf47d557eb469c9fc755f8e07f11f7()
+                       finally
+                         $(Expr(:block, body.args[(i+1):end]...))
+                       end
+                     end
+                  ]
+    else
+      body.args = [body.args..., :(ecbf47d557eb469c9fc755f8e07f11f7())]
+    end
+  else
+    error("Expected a :block got a $(body.head)")
+  end
+
+  # Put the new body in
+  ex.args[end] = body
+
+  return esc(ex)
+end
