@@ -1,8 +1,8 @@
-export @>>>
 export @fixture
+export yield_fixture
 
-macro >>>()
-  error("@>>> must be in the top level of scope within function")
+function yield_fixture()
+  error("yield_fixture must be in the top level of scope within @fixture function")
 end
 
 function flatten_nested_block(ex::Expr)
@@ -48,12 +48,22 @@ macro fixture(ex::Expr)
 
   const body = flatten_nested_block(ex.args[end])
   if body.head == :block
-    i = findfirst(body.args, :(@>>>))
+    i = findfirst(body.args) do v
+      if typeof(v)==Expr && v.head==:call && v.args[1]==:yield_fixture
+        true
+      else
+        false
+      end
+    end
     if i>0
+      # Copy the call so that we get any arguments
+      const call_expr = copy(body.args[i])
+      call_expr.args[1] = :ecbf47d557eb469c9fc755f8e07f11f7
+
       body.args = [body.args[1:(i-1)]...,
                      quote
                        try
-                         return ecbf47d557eb469c9fc755f8e07f11f7()
+                         return $call_expr
                        finally
                          $(Expr(:block, body.args[(i+1):end]...))
                        end

@@ -10,11 +10,11 @@ using FactCheck
 end
 @fixture shorthand_beginend0c() = begin
   global state = "shorthand_beginend0c"
-  @>>>
+  yield_fixture()
 end
 @fixture shorthand_beginend0d() = begin
   global state = "shorthand_beginend0d"
-  @>>>
+  yield_fixture()
   global state = ""
 end
 
@@ -25,16 +25,16 @@ end
 end
 @fixture shorthand_beginend1c(x) = begin
   global state = "shorthand_beginend1c_$x"
-  @>>>
+  yield_fixture()
 end
 @fixture shorthand_beginend1d(x) = begin
   global state = "shorthand_beginend1d_$x"
-  @>>>
+  yield_fixture()
   global state = ""
 end
 @fixture shorthand_beginend1e(x::Integer) = begin
   global state = "shorthand_beginend1e_$x"
-  @>>>
+  yield_fixture()
   global state = ""
 end
 
@@ -45,16 +45,16 @@ end
 end
 @fixture shorthand_beginend2c(x, y) = begin
   global state = "shorthand_beginend2c_$(x)_$(y)"
-  @>>>
+  yield_fixture()
 end
 @fixture shorthand_beginend2d(x, y) = begin
   global state = "shorthand_beginend2d_$(x)_$(y)"
-  @>>>
+  yield_fixture()
   global state = ""
 end
 @fixture shorthand_beginend2e(x::Integer, y::Integer) = begin
   global state = "shorthand_beginend2e_$(x)_$(y)"
-  @>>>
+  yield_fixture()
   global state = ""
 end
 
@@ -65,11 +65,11 @@ end
 )
 @fixture shorthand_brackets0c() = (
   global state = "shorthand_brackets0c";
-  @>>>
+  yield_fixture()
 )
 @fixture shorthand_brackets0d() = (
   global state = "shorthand_brackets0d";
-  @>>>;
+  yield_fixture();
   global state = ""
 )
 
@@ -80,16 +80,16 @@ end
 )
 @fixture shorthand_brackets1c(x) = (
   global state = "shorthand_brackets1c_$x";
-  @>>>
+  yield_fixture()
 )
 @fixture shorthand_brackets1d(x) = (
   global state = "shorthand_brackets1d_$x";
-  @>>>;
+  yield_fixture();
   global state = ""
 )
 @fixture shorthand_brackets1e(x::Integer) = (
   global state = "shorthand_brackets1e_$x";
-  @>>>;
+  yield_fixture();
   global state = ""
 )
 
@@ -100,16 +100,16 @@ end
 )
 @fixture shorthand_brackets2c(x, y) = (
   global state = "shorthand_brackets2c_$(x)_$(y)";
-  @>>>
+  yield_fixture()
 )
 @fixture shorthand_brackets2d(x, y) = (
   global state = "shorthand_brackets2d_$(x)_$(y)";
-  @>>>;
+  yield_fixture();
   global state = ""
 )
 @fixture shorthand_brackets2e(x::Integer, y::Integer) = (
   global state = "shorthand_brackets2e_$(x)_$(y)";
-  @>>>;
+  yield_fixture();
   global state = ""
 )
 
@@ -119,11 +119,11 @@ function0a = @fixture function()
 end
 function0b = @fixture function()
   global state = "function0b"
-  @>>>
+  yield_fixture()
 end
 function0c = @fixture function()
   global state = "function0c"
-  @>>>
+  yield_fixture()
   global state = ""
 end
 
@@ -133,16 +133,16 @@ function1a = @fixture function(x)
 end
 function1b = @fixture function(x)
   global state = "function1b_$x"
-  @>>>
+  yield_fixture()
 end
 function1c = @fixture function(x)
   global state = "function1c_$x"
-  @>>>
+  yield_fixture()
   global state = ""
 end
 function1d = @fixture function(x::Integer)
   global state = "function1d_$x"
-  @>>>
+  yield_fixture()
   global state = ""
 end
 
@@ -152,16 +152,16 @@ function2a = @fixture function(x, y)
 end
 function2b = @fixture function(x, y)
   global state = "function2b_$(x)_$(y)"
-  @>>>
+  yield_fixture()
 end
 function2c = @fixture function(x, y)
   global state = "function2c_$(x)_$(y)"
-  @>>>
+  yield_fixture()
   global state = ""
 end
 function2d = @fixture function(x::Integer, y::Integer)
   global state = "function2d_$(x)_$(y)"
-  @>>>
+  yield_fixture()
   global state = ""
 end
 
@@ -171,11 +171,11 @@ end
 end
 @fixture function method0b()
   global state = "method0b"
-  @>>>
+  yield_fixture()
 end
 @fixture function method0c()
   global state = "method0c"
-  @>>>
+  yield_fixture()
   global state = ""
 end
 
@@ -185,16 +185,16 @@ end
 end
 @fixture function method1b(x)
   global state = "method1b_$x"
-  @>>>
+  yield_fixture()
 end
 @fixture function method1c(x)
   global state = "method1c_$x"
-  @>>>
+  yield_fixture()
   global state = ""
 end
 @fixture function method1d(x::Integer)
   global state = "method1d_$x"
-  @>>>
+  yield_fixture()
   global state = ""
 end
 
@@ -204,16 +204,16 @@ end
 end
 @fixture function method2b(x, y)
   global state = "method2b_$(x)_$(y)"
-  @>>>
+  yield_fixture()
 end
 @fixture function method2c(x, y)
   global state = "method2c_$(x)_$(y)"
-  @>>>
+  yield_fixture()
   global state = ""
 end
 @fixture function method2d(x::Integer, y::Integer)
   global state = "method2d_$(x)_$(y)"
-  @>>>
+  yield_fixture()
   global state = ""
 end
 
@@ -224,11 +224,11 @@ lambda_beginend0b = @fixture () -> begin
 end
 lambda_beginend0c = @fixture () -> begin
   global state = "lambda_beginend0c"
-  @>>>
+  yield_fixture()
 end
 lambda_beginend0d = @fixture () -> begin
   global state = "lambda_beginend0d"
-  @>>>
+  yield_fixture()
   global state = ""
 end
 
@@ -239,16 +239,16 @@ lambda_beginend1b = @fixture (x) -> begin
 end
 lambda_beginend1c = @fixture (x) -> begin
   global state = "lambda_beginend1c_$x"
-  @>>>
+  yield_fixture()
 end
 lambda_beginend1d = @fixture (x) -> begin
   global state = "lambda_beginend1d_$x"
-  @>>>
+  yield_fixture()
   global state = ""
 end
 lambda_beginend1e = @fixture (x::Integer) -> begin
   global state = "lambda_beginend1e_$x"
-  @>>>
+  yield_fixture()
   global state = ""
 end
 
@@ -259,16 +259,16 @@ lambda_beginend2b = @fixture (x, y) -> begin
 end
 lambda_beginend2c = @fixture (x, y) -> begin
   global state = "lambda_beginend2c_$(x)_$(y)"
-  @>>>
+  yield_fixture()
 end
 lambda_beginend2d = @fixture (x, y) -> begin
   global state = "lambda_beginend2d_$(x)_$(y)"
-  @>>>
+  yield_fixture()
   global state = ""
 end
 lambda_beginend2e = @fixture (x::Integer, y::Integer) -> begin
   global state = "lambda_beginend2e_$(x)_$(y)"
-  @>>>
+  yield_fixture()
   global state = ""
 end
 
@@ -279,11 +279,11 @@ lambda_brackets0b = @fixture () -> (
 )
 lambda_brackets0c = @fixture () -> (
   global state = "lambda_brackets0c";
-  @>>>
+  yield_fixture()
 )
 lambda_brackets0d = @fixture () -> (
   global state = "lambda_brackets0d";
-  @>>>;
+  yield_fixture();
   global state = ""
 )
 
@@ -294,16 +294,16 @@ lambda_brackets1b = @fixture (x) -> (
 )
 lambda_brackets1c = @fixture (x) -> (
   global state = "lambda_brackets1c_$x";
-  @>>>
+  yield_fixture()
 )
 lambda_brackets1d = @fixture (x) -> (
   global state = "lambda_brackets1d_$x";
-  @>>>;
+  yield_fixture();
   global state = ""
 )
 lambda_brackets1e = @fixture (x::Integer) -> (
   global state = "lambda_brackets1e_$x";
-  @>>>;
+  yield_fixture();
   global state = ""
 )
 
@@ -314,18 +314,31 @@ lambda_brackets2b = @fixture (x, y) -> (
 )
 lambda_brackets2c = @fixture (x, y) -> (
   global state = "lambda_brackets2c_$(x)_$(y)";
-  @>>>
+  yield_fixture()
 )
 lambda_brackets2d = @fixture (x, y) -> (
   global state = "lambda_brackets2d_$(x)_$(y)";
-  @>>>;
+  yield_fixture();
   global state = ""
 )
 lambda_brackets2e = @fixture (x::Integer, y::Integer) -> (
   global state = "lambda_brackets2e_$(x)_$(y)";
-  @>>>;
+  yield_fixture();
   global state = ""
 )
+
+
+@fixture function fixture_that_produces_a_value()
+  global state = "fixture_that_produces_a_value"
+  yield_fixture(100)
+  global state = ""
+end
+
+@fixture function fixture_that_produces_two_values()
+  global state = "fixture_that_produces_two_values"
+  yield_fixture(100,200)
+  global state = ""
+end
 
 
 facts("@Fixture tests") do
@@ -1079,14 +1092,35 @@ facts("@Fixture tests") do
     @fact state=>""
   end
 
-  context("misplaced @>>> causes an error") do
+  context("misplaced yield_fixture() causes an error") do
     caught = false
     try
-      eval(:(@>>>))
+      eval(:(yield_fixture()))
     catch
       caught = true
     end
     @fact caught=>true
+  end
+
+  context("fixture_that_produces_a_value") do
+    res = fixture_that_produces_a_value() do x
+      @fact state=>"fixture_that_produces_a_value"
+      @fact x=>100
+      1234
+    end
+    @fact res=>1234
+    @fact state=>""
+  end
+
+  context("fixture_that_produces_two_values") do
+    res = fixture_that_produces_two_values() do x, y
+      @fact state=>"fixture_that_produces_two_values"
+      @fact x=>100
+      @fact y=>200
+      1234
+    end
+    @fact res=>1234
+    @fact state=>""
   end
 end
 

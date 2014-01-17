@@ -16,7 +16,7 @@ end
 function add_fixture(scope::Symbol, before::Function, after::Function)
   add_fixture(scope, @fixture function()
                 before()
-                @>>>
+                yield_fixture()
                 after()
               end)
 end
@@ -34,7 +34,7 @@ end
     consume(tsk)
   end
 
-  @>>>
+  yield_fixture()
 
   # Complete the tasks in the opposite order we began them
   reverse!(tsks)

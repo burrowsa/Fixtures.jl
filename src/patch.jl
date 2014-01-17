@@ -28,7 +28,7 @@ patch(fn::Function, mod::Module, name::Symbol, new::Any) = patchimpl(fn, mod, na
 @fixture function patchimpl(mod::Module, name::Union(Expr,Symbol), new::Any)
   const old = mod.eval(name)
   mod.eval(:($name = $new))
-  @>>>
+  yield_fixture()
   mod.eval(:($name = $old))
 end
 

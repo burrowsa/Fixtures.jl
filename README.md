@@ -50,7 +50,7 @@ To simplify creating fixture functions Fixtures.jl provides the `@fixture` macro
 
     @fixture function demo()
         println("before")
-        @>>>
+        yield_fixture()
         println("after")
     end
     
@@ -58,11 +58,11 @@ To simplify creating fixture functions Fixtures.jl provides the `@fixture` macro
         println("hello world")
     end
 
-The `@>>>` symbol divides the setup code from the teardown code. Of course, fixtures like this can take arguments too:
+The `yield_fixture()` call divides the setup code from the teardown code. Of course, fixtures like this can take arguments too:
 
     @fixture function personal_greeting(name)
         println("Hello $name")
-        @>>>
+        yield_fixture()
         println("Good bye $name")
     end
     
@@ -74,7 +74,7 @@ often you want to resuse the same fixture several times, for example you might w
 
     @fixture function testdb()
         # setup database
-        @>>>
+        yield_fixture()
         # teardown database
     end
 
