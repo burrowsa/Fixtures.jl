@@ -132,7 +132,7 @@ before
 Bonjour tout le monde  
 after
 
-There is also a handy `add_fixture` method that lets you define the setup and teardown functions separately:
+There is also a handy `add_simple_fixture` method that lets you define the setup and teardown functions separately:
 
 `function add_fixture(scope::Symbol, before::Function, after::Function)`
 

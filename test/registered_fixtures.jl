@@ -13,22 +13,9 @@ facts("Registered Fixtures tests") do
 
       @fact Fixtures.fixtures => Dict()
       add_fixture(:somecontext, somefunction)
-      @fact Fixtures.fixtures => {:somecontext=>(anything_of_type(Function),)}
-    end
-  end
-
-  context("test apply_fixtures applies fixtures") do
-    patch(Fixtures, :fixtures, Dict()) do
-      global x = 0
-
-      function somefunction(fn::Function)
-        global x = 100
-        fn()
-      end
-
-      @fact Fixtures.fixtures => Dict()
-      add_fixture(:somecontext, somefunction)
-      @fact Fixtures.fixtures => {:somecontext=>(anything_of_type(Function),)}
+      @fact length(Fixtures.fixtures[:somecontext])=>1
+      @fact Fixtures.fixtures[:somecontext][1].name => nothing
+      @fact Fixtures.fixtures[:somecontext][1].fn => anything_of_type(Function)
     end
   end
 
@@ -55,7 +42,7 @@ facts("Registered Fixtures tests") do
     end
   end
 
-  context("test add_fixture with separate setup and teardown functions") do
+  context("test add_simple_fixture with separate setup and teardown functions") do
     patch(Fixtures, :fixtures, Dict()) do
       global x = 0
 
@@ -68,7 +55,7 @@ facts("Registered Fixtures tests") do
       end
 
       @fact Fixtures.fixtures => Dict()
-      add_fixture(:somecontext, setup_func, teardown_func)
+      add_simple_fixture(:somecontext, setup_func, teardown_func)
       @fact x=>0
       apply_fixtures(:somecontext) do
         @fact x=>100
