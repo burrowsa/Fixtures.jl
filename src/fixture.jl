@@ -17,12 +17,21 @@ function flatten_nested_block(ex::Expr)
   end
 end
 
+function insert_function_as_first_argument_to_method(ex::Expr)
+  if length(ex.args[1].args)>=2 && typeof(ex.args[1].args[2])==Expr && ex.args[1].args[2].head==:parameters
+    # Add ecbf47d557eb469c9fc755f8e07f11f7::Function between the parameters and the other arguments
+    ex.args[1].args = [ex.args[1].args[1:2], :(ecbf47d557eb469c9fc755f8e07f11f7::Function), ex.args[1].args[3:]...]
+  else
+    # Add ecbf47d557eb469c9fc755f8e07f11f7::Function between the name and the other arguments
+    ex.args[1].args = [ex.args[1].args[1], :(ecbf47d557eb469c9fc755f8e07f11f7::Function), ex.args[1].args[2:]...]
+  end
+end
+
 macro fixture(ex::Expr)
   args = ex.args[1]
   if ex.head == :function
     if ex.args[1].head == :call
-      # Add ecbf47d557eb469c9fc755f8e07f11f7::Function between the name and the other arguments
-      ex.args[1].args = [ex.args[1].args[1], :(ecbf47d557eb469c9fc755f8e07f11f7::Function), ex.args[1].args[2:]...]
+      insert_function_as_first_argument_to_method(ex)
     else # ex.args[1].head == :tuple
       # Add ecbf47d557eb469c9fc755f8e07f11f7::Function as the first argument
       ex.args[1].args = [:(ecbf47d557eb469c9fc755f8e07f11f7::Function), ex.args[1].args...]
@@ -40,8 +49,7 @@ macro fixture(ex::Expr)
       end
     end
   elseif ex.head == :(=) && ex.args[1].head == :call
-    # Add ecbf47d557eb469c9fc755f8e07f11f7::Function between the name and the other arguments
-    ex.args[1].args = [ex.args[1].args[1], :(ecbf47d557eb469c9fc755f8e07f11f7::Function), ex.args[1].args[2:]...]
+    insert_function_as_first_argument_to_method(ex)
   else
     error("@fixture can only be applied to methods/functions/lambdas")
   end

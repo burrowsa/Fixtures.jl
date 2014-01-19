@@ -340,6 +340,144 @@ end
   global state = ""
 end
 
+@fixture function method1p0d0kw(x)
+  global state = "method1p0d0kw_$x"
+  yield_fixture()
+  global state = ""
+end
+@fixture function method0p1d0kw(x=10) # 2 methods
+  global state = "method0p1d0kw_$x"
+  yield_fixture()
+  global state = ""
+end
+@fixture function method0p0d1kw(;x=10)
+  global state = "method0p0d1kw_$x"
+  yield_fixture()
+  global state = ""
+end
+@fixture function method2p0d0kw(x,y)
+  global state = "method2p0d0kw_$(x)_$(y)"
+  yield_fixture()
+  global state = ""
+end
+@fixture function method0p2d0kw(x=10,y=20)
+  global state = "method2p0d0kw_$(x)_$(y)"
+  yield_fixture()
+  global state = ""
+end
+@fixture function method0p0d2kw(;x=10,y=20)
+  global state = "method0p0d2kw_$(x)_$(y)"
+  yield_fixture()
+  global state = ""
+end
+@fixture function method1p1d1kw(x,y=10;z=20)
+  global state = "method1p1d1kw_$(x)_$(y)_$z"
+  yield_fixture()
+  global state = ""
+end
+@fixture function method2p2d2kw(x1,x2,y1=10,y2=20;z1=30,z2=40)
+  global state = "method2p2d2kw_$(x1)_$(x2)_$(y1)_$(y2)_$(z1)_$z2"
+  yield_fixture()
+  global state = ""
+end
+@fixture function method1p0d0kwT(x::Integer)
+  global state = "method1p0d0kwT_$x"
+  yield_fixture()
+  global state = ""
+end
+
+@fixture function method0p1d0kwT(x::Integer=10)
+  global state = "method0p1d0kwT_$x"
+  yield_fixture()
+  global state = ""
+end
+@fixture function method0p0d1kwT(;x::Integer=10)
+  global state = "method0p0d1kwT_$x"
+  yield_fixture()
+  global state = ""
+end
+@fixture function method2p0d0kwT(x::Integer,y::Integer)
+  global state = "method2p0d0kwT_$(x)_$(y)"
+  yield_fixture()
+  global state = ""
+end
+@fixture function method0p2d0kwT(x::Integer=10,y::Integer=20)
+  global state = "method0p2d0kwT$(x)_$(y)"
+  yield_fixture()
+  global state = ""
+end
+@fixture function method0p0d2kwT(;x::Integer=10,y::Integer=20)
+  global state = "method0p0d2kwT_$(x)_$(y)"
+  yield_fixture()
+  global state = ""
+end
+@fixture function method1p1d1kwT(x::Integer,y::Integer=10;z::Integer=20)
+  global state = "method1p1d1kwT_$(x)_$(y)_$z"
+  yield_fixture()
+  global state = ""
+end
+@fixture function method2p2d2kwT(x1::Integer,x2::Integer,y1::Integer=10,y2::Integer=20;z1::Integer=30,z2::Integer=40)
+  global state = "method2p2d2kwT_$(x1)_$(x2)_$(y1)_$(y2)_$(z1)_$z2"
+  yield_fixture()
+  global state = ""
+end
+
+@fixture function method_variadic_a(args...)
+  global state = "method_variadic_a_$args"
+  yield_fixture()
+  global state = ""
+end
+@fixture function method_variadic_b(;args...)
+  global state = "method_variadic_b_$args"
+  yield_fixture()
+  global state = ""
+end
+@fixture function method_variadic_c(args...;kwargs...)
+  global state = "method_variadic_c_$(args)_$kwargs"
+  yield_fixture()
+  global state = ""
+end
+@fixture function method_variadic_d(x, args...)
+  global state = "method_variadic_d_$(x)_$args"
+  yield_fixture()
+  global state = ""
+end
+@fixture function method_variadic_e(; x=10, args...)
+  global state = "method_variadic_e_$(x)_$args"
+  yield_fixture()
+  global state = ""
+end
+@fixture function method_variadic_f(x, args...; y=10, kwargs...)
+  global state = "method_variadic_f_$(x)_$(args)_$(y)_$kwargs"
+  yield_fixture()
+  global state = ""
+end
+@fixture function method_variadic_g(args::Integer...)
+  global state = "method_variadic_g_$args"
+  yield_fixture()
+  global state = ""
+end
+@fixture function method_variadic_h(args::Integer...;kwargs...)
+  global state = "method_variadic_h_$(args)_$kwargs"
+  yield_fixture()
+  global state = ""
+end
+@fixture function method_variadic_i(x::Integer, args::Integer...)
+  global state = "method_variadic_i_$(x)_$args"
+  yield_fixture()
+  global state = ""
+end
+@fixture function method_variadic_j(; x::Integer=10, args...)
+  global state = "method_variadic_j_$(x)_$args"
+  yield_fixture()
+  global state = ""
+end
+@fixture function method_variadic_k(x::Integer, args::Integer...; y::Integer=10, kwargs...)
+  global state = "method_variadic_k_$(x)_$(args)_$(y)_$kwargs"
+  yield_fixture()
+  global state = ""
+end
+
 
 facts("@Fixture tests") do
   context("shorthand_brackets0a") do
@@ -1122,6 +1260,322 @@ facts("@Fixture tests") do
     @fact res=>1234
     @fact state=>""
   end
+
+  context("method0p0d1kw") do
+    res = method0p0d1kw(x=100) do
+      @fact state=>"method0p0d1kw_100"
+      1234
+    end
+    @fact res=>1234
+    @fact state=>""
+    res = method0p0d1kw() do
+      @fact state=>"method0p0d1kw_10"
+      1234
+    end
+    @fact res=>1234
+    @fact state=>""
+  end
+
+  context("method0p0d1kwT") do
+    res = method0p0d1kwT(x=100) do
+      @fact state=>"method0p0d1kwT_100"
+      1234
+    end
+    @fact res=>1234
+    @fact state=>""
+    res = method0p0d1kwT() do
+      @fact state=>"method0p0d1kwT_10"
+      1234
+    end
+    @fact res=>1234
+    @fact state=>""
+  end
+
+  context("method0p0d2kw") do
+    res = method0p0d2kw(x=100,y=200) do
+      @fact state=>"method0p0d2kw_100_200"
+      1234
+    end
+    @fact res=>1234
+    @fact state=>""
+    res = method0p0d2kw() do
+      @fact state=>"method0p0d2kw_10_20"
+      1234
+    end
+    @fact res=>1234
+    @fact state=>""
+  end
+
+  context("method0p0d2kwT") do
+    res = method0p0d2kwT(x=100,y=200) do
+      @fact state=>"method0p0d2kwT_100_200"
+      1234
+    end
+    @fact res=>1234
+    @fact state=>""
+    res = method0p0d2kwT() do
+      @fact state=>"method0p0d2kwT_10_20"
+      1234
+    end
+    @fact res=>1234
+    @fact state=>""
+  end
+
+  context("method0p1d0kw") do
+    res = method0p1d0kw() do
+      @fact state=>"method0p1d0kw_10"
+      1234
+    end
+    @fact res=>1234
+    @fact state=>""
+    res = method0p1d0kw(100) do
+      @fact state=>"method0p1d0kw_100"
+      1234
+    end
+    @fact res=>1234
+    @fact state=>""
+  end
+
+  context("method0p1d0kwT") do
+    res = method0p1d0kwT() do
+      @fact state=>"method0p1d0kwT_10"
+      1234
+    end
+    @fact res=>1234
+    @fact state=>""
+    res = method0p1d0kwT(100) do
+      @fact state=>"method0p1d0kwT_100"
+      1234
+    end
+    @fact res=>1234
+    @fact state=>""
+  end
+
+  context("method0p2d0kw") do
+    res = method0p2d0kw(100,200) do
+      @fact state=>"method2p0d0kw_100_200"
+      1234
+    end
+    @fact res=>1234
+    @fact state=>""
+    res = method0p2d0kw() do
+      @fact state=>"method2p0d0kw_10_20"
+      1234
+    end
+    @fact res=>1234
+    @fact state=>""
+  end
+
+  context("method0p2d0kwT") do
+    res = method0p2d0kwT(100,200) do
+      @fact state=>"method0p2d0kwT100_200"
+      1234
+    end
+    @fact res=>1234
+    @fact state=>""
+    res = method0p2d0kwT() do
+      @fact state=>"method0p2d0kwT10_20"
+      1234
+    end
+    @fact res=>1234
+    @fact state=>""
+  end
+
+  context("method1p0d0kw") do
+    res = method1p0d0kw(100) do
+      @fact state=>"method1p0d0kw_100"
+      1234
+    end
+    @fact res=>1234
+    @fact state=>""
+  end
+
+  context("method1p0d0kwT") do
+    res = method1p0d0kwT(100) do
+      @fact state=>"method1p0d0kwT_100"
+      1234
+    end
+    @fact res=>1234
+    @fact state=>""
+  end
+
+  context("method1p1d1kw") do
+    res = method1p1d1kw(100,200,z=300) do
+      @fact state=>"method1p1d1kw_100_200_300"
+      1234
+    end
+    @fact res=>1234
+    @fact state=>""
+    res = method1p1d1kw(100) do
+      @fact state=>"method1p1d1kw_100_10_20"
+      1234
+    end
+    @fact res=>1234
+    @fact state=>""
+  end
+
+  context("method1p1d1kwT") do
+    res = method1p1d1kwT(100,200,z=300) do
+      @fact state=>"method1p1d1kwT_100_200_300"
+      1234
+    end
+    @fact res=>1234
+    @fact state=>""
+    res = method1p1d1kwT(100) do
+      @fact state=>"method1p1d1kwT_100_10_20"
+      1234
+    end
+    @fact res=>1234
+    @fact state=>""
+  end
+
+  context("method2p0d0kw") do
+    res = method2p0d0kw(100,200) do
+      @fact state=>"method2p0d0kw_100_200"
+      1234
+    end
+    @fact res=>1234
+    @fact state=>""
+  end
+
+  context("method2p0d0kwT") do
+    res = method2p0d0kwT(100,200) do
+      @fact state=>"method2p0d0kwT_100_200"
+      1234
+    end
+    @fact res=>1234
+    @fact state=>""
+  end
+
+  context("method2p2d2kw") do
+    res = method2p2d2kw(100,200,300,400,z1=500,z2=600) do
+      @fact state=>"method2p2d2kw_100_200_300_400_500_600"
+      1234
+    end
+    @fact res=>1234
+    @fact state=>""
+    res = method2p2d2kw(100,200) do
+      @fact state=>"method2p2d2kw_100_200_10_20_30_40"
+      1234
+    end
+    @fact res=>1234
+    @fact state=>""
+  end
+
+  context("method2p2d2kwT") do
+    res = method2p2d2kwT(100,200,300,400,z1=500,z2=600) do
+      @fact state=>"method2p2d2kwT_100_200_300_400_500_600"
+      1234
+    end
+    @fact res=>1234
+    @fact state=>""
+    res = method2p2d2kwT(100,200) do
+      @fact state=>"method2p2d2kwT_100_200_10_20_30_40"
+      1234
+    end
+    @fact res=>1234
+    @fact state=>""
+  end
+
+  context("method_variadic_a") do
+    res = method_variadic_a(10,20,30) do
+      @fact state=>"method_variadic_a_(10,20,30)"
+      1234
+    end
+    @fact res=>1234
+    @fact state=>""
+  end
+
+  context("method_variadic_b") do
+    res = method_variadic_b(x=10,y=20,z=30) do
+      @fact state=>"method_variadic_b_(:x,10)\n(:y,20)\n(:z,30)\n"
+      1234
+    end
+    @fact res=>1234
+    @fact state=>""
+  end
+
+  context("method_variadic_c") do
+    res = method_variadic_c(10,20,30,x=10,y=20,z=30) do
+      @fact state=>"method_variadic_c_(10,20,30)_(:x,10)\n(:y,20)\n(:z,30)\n"
+      1234
+    end
+    @fact res=>1234
+    @fact state=>""
+  end
+
+  context("method_variadic_d") do
+    res = method_variadic_d(10,20,30) do
+      @fact state=>"method_variadic_d_10_(20,30)"
+      1234
+    end
+    @fact res=>1234
+    @fact state=>""
+  end
+
+  context("method_variadic_e") do
+    res = method_variadic_e(x=10,y=20,z=30) do
+      @fact state=>"method_variadic_e_10_(:y,20)\n(:z,30)\n"
+      1234
+    end
+    @fact res=>1234
+    @fact state=>""
+  end
+
+  context("method_variadic_f") do
+    res = method_variadic_f(10,20,30,x=10,y=20,z=30) do
+      @fact state=>"method_variadic_f_10_(20,30)_20_(:x,10)\n(:z,30)\n"
+      1234
+    end
+    @fact res=>1234
+    @fact state=>""
+  end
+
+  context("method_variadic_g") do
+    res = method_variadic_g(10,20,30) do
+      @fact state=>"method_variadic_g_(10,20,30)"
+      1234
+    end
+    @fact res=>1234
+    @fact state=>""
+  end
+
+  context("method_variadic_h") do
+    res = method_variadic_h(10,20,30,x=10,y=20,z=30) do
+      @fact state=>"method_variadic_h_(10,20,30)_(:x,10)\n(:y,20)\n(:z,30)\n"
+      1234
+    end
+    @fact res=>1234
+    @fact state=>""
+  end
+
+  context("method_variadic_i") do
+    res = method_variadic_i(10,20,30) do
+      @fact state=>"method_variadic_i_10_(20,30)"
+      1234
+    end
+    @fact res=>1234
+    @fact state=>""
+  end
+
+  context("method_variadic_j") do
+    res = method_variadic_j(x=10,y=20,z=30) do
+      @fact state=>"method_variadic_j_10_(:y,20)\n(:z,30)\n"
+      1234
+    end
+    @fact res=>1234
+    @fact state=>""
+  end
+
+  context("method_variadic_k") do
+    res = method_variadic_k(10,20,30,x=10,y=20,z=30) do
+      @fact state=>"method_variadic_k_10_(20,30)_20_(:x,10)\n(:z,30)\n"
+      1234
+    end
+    @fact res=>1234
+    @fact state=>""
+  end
+
 end
 
 end
