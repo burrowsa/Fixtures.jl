@@ -40,7 +40,7 @@ add_simple_fixture(scope::Symbol, before::Function, after::Function) = add_simpl
 
 list_map(args...) = [ map(args...)... ]
 
-@fixture function apply_fixtures(scope::Symbol, fixture_values=false)
+@fixture function apply_fixtures(scope::Symbol; fixture_values=false)
   # Convert all the fixtures to tasks
   const fv = Dict{Symbol, Any}()
   const tsks = list_map(get(fixtures, scope, ())) do nf::NamedFixture
