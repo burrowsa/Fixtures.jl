@@ -5,6 +5,8 @@ SymbolOrNothing = Union(Symbol, Nothing)
 immutable NamedFixture
   name::SymbolOrNothing
   fn::Function
+  args::(Any...)
+  kwargs::Array{Any,1}
 end
 
 fixtures = Dict{Symbol, (NamedFixture...)}()
@@ -17,7 +19,7 @@ function add_fixture(scope::Symbol, name::SymbolOrNothing, fixture::Function, ar
     error("A fixture named $name is already defined.")
   end
 
-  const nf = NamedFixture(name, () -> fixture(produce, args..., kwargs...))
+  const nf = NamedFixture(name, fixture, args, kwargs)
 
   if haskey(fixtures, scope)
     fixtures[scope] = tuple(fixtures[scope]...,  nf)
@@ -47,18 +49,23 @@ list_map(args...) = [ map(args...)... ]
   const tsks = list_map(get(fixtures, scope, ())) do nf::NamedFixture
     if fixture_values && nf.name!=nothing
       return Task() do
-        # TODO: We can get rid of this double-tasking if we store the args on NamedFixture and make the
-        #       no-argument function in apply_fixture instead of add_fixture
-        const result = consume(Task(nf.fn))
-        fv[nf.name] = result
-        produce()
+        nf.fn(nf.args..., nf.kwargs...) do values::Any...
+          if length(values)==0
+            fv[nf.name] = nothing
+          elseif length(values)==1
+            fv[nf.name] = values[1]
+          else
+            fv[nf.name] = values
+          end
+          produce()
+        end
       end
     else
-      return Task(nf.fn)
+      return Task(() -> nf.fn(produce, nf.args..., nf.kwargs...))
     end
   end
 
-  # fixtures can be befined within in nested scopes, create a new scope
+  # fixtures can be defined within in nested scopes, create a new scope
   const old = fixtures
   global fixtures = copy(fixtures)
 
