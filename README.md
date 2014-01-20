@@ -69,7 +69,7 @@ It is very common for fixtures to take one or more arguments, for example:
 
 would produce the output:
 
->Hello Bob
+> Hello Bob
 Test code here
 Good bye Bob
 
@@ -90,7 +90,7 @@ It is also rather common for fixtures to produce a value that needs to be used i
 
 would produce the output:
 
->Hello Bob
+> Hello Bob
 Secret message for Bob
 Good bye Bob
 
