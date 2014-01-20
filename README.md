@@ -69,9 +69,9 @@ It is very common for fixtures to take one or more arguments, for example:
 
 would produce the output:
 
-> Hello Bob
-Test code here
-Good bye Bob
+> Hello Bob  
+Test code here  
+Good bye Bob  
 
 `@fixture` supports all argument types, including default arguments, keyword arguments and varargs.
 
@@ -90,9 +90,9 @@ It is also rather common for fixtures to produce a value that needs to be used i
 
 would produce the output:
 
-> Hello Bob
-Secret message for Bob
-Good bye Bob
+> Hello Bob  
+Secret message for Bob  
+Good bye Bob  
 
 You can pass any number of values to the test code, however keyword arguments are not supported by `do` blocks so you can't use those.
 
@@ -194,9 +194,9 @@ and then setting `fixture_values=true` when calling `apply_fixtures` makes all t
 
 Output is still:
 
-> Hello Bob
-Secret message for Bob
-Good bye Bob
+> Hello Bob  
+Secret message for Bob  
+Good bye Bob  
 
 ## Simple Fixtures ##
 
