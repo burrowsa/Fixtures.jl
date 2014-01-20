@@ -44,7 +44,7 @@ Defining a fixture this way does involve a certain amount of boilerplate code so
     @fixture function example_fixture()
         # Setup code goes here
         yield_fixture()
-		# Teardown code goes here
+    # Teardown code goes here
     end
 
 and the calling code remains unchanged:
@@ -221,6 +221,15 @@ For users of FactCheck.jl methods are provided to make it simple to use Fixtures
     end
 
 All the features listed in the sections above are available when using FactCheck.jl
+
+## File fixtures ##
+
+Fixtures.jl comes with a number of fixtures for using files in your tests:
+
+- `temp_filename([extension=<filename extension>],[create=<true, false or string content>])`
+- `temp_file([mode=<file mode, default is "w">],[extension=<filename extension>],[content=<string content>])`
+- `temp_dir()`
+- `cleanup_path(<path>[, ignore_missing=true|false])`
 
 ## Patching ##
 
