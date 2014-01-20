@@ -9,7 +9,8 @@ end
 
 fixtures = Dict{Symbol, (NamedFixture...)}()
 
-names() = Set{:Symbol}([nf.name for nf in values(fixtures)]...)
+get_name(nfs::(NamedFixture...)) = [nf.name for nf in nfs]
+names() = Set([[ get_name(x) for x in values(Fixtures.fixtures) ]...]...)
 
 function add_fixture(scope::Symbol, name::SymbolOrNothing, fixture::Function, args...; kwargs...)
   if name!=nothing && name in names()
@@ -45,7 +46,13 @@ list_map(args...) = [ map(args...)... ]
   const fv = Dict{Symbol, Any}()
   const tsks = list_map(get(fixtures, scope, ())) do nf::NamedFixture
     if fixture_values && nf.name!=nothing
-      return Task(() -> fv[nf.name] = nf.fn())
+      return Task() do
+        # TODO: We can get rid of this double-tasking if we store the args on NamedFixture and make the
+        #       no-argument function in apply_fixture instead of add_fixture
+        const result = consume(Task(nf.fn))
+        fv[nf.name] = result
+        produce()
+      end
     else
       return Task(nf.fn)
     end

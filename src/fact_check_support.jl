@@ -13,10 +13,10 @@ if begin
   const using_fixtures = ApplyFixturesFlag()
 
   import FactCheck.facts
-  facts(fn::Function, applyfixtures::ApplyFixturesFlag) = facts(fn, nothing, applyfixtures)
-  facts(fn::Function, desc, applyfixtures::ApplyFixturesFlag) = apply_fixtures(()->facts(fn, desc), :facts)
+  facts(fn::Function, applyfixtures::ApplyFixturesFlag; fixture_values=false) = facts(fn, nothing, applyfixtures, fixture_values=fixture_values)
+  facts(fn::Function, desc, applyfixtures::ApplyFixturesFlag; fixture_values=false) = apply_fixtures((args...)->facts(( () -> fn(args...) ), desc), :facts, fixture_values=fixture_values)
 
   import FactCheck.context
-  context(f::Function, applyfixtures::ApplyFixturesFlag) = context(f, nothing, applyfixtures)
-  context(fn::Function, desc, applyfixtures::ApplyFixturesFlag) = apply_fixtures(()->context(fn, desc), :context)
+  context(f::Function, applyfixtures::ApplyFixturesFlag; fixture_values=false) = context(f, nothing, applyfixtures, fixture_values=fixture_values)
+  context(fn::Function, desc, applyfixtures::ApplyFixturesFlag; fixture_values=false) = apply_fixtures((args...)->context(( () -> fn(args...) ), desc), :context, fixture_values=fixture_values)
 end

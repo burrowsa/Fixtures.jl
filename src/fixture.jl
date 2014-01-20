@@ -1,7 +1,7 @@
 export @fixture
 export yield_fixture
 
-function yield_fixture()
+function yield_fixture(args...)
   error("yield_fixture must be in the top level of scope within @fixture function")
 end
 
