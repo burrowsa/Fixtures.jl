@@ -37,6 +37,11 @@ end
   yield_fixture()
   global state = ""
 end
+@fixture shorthand_beginend1f{T}(x::T) = begin
+  global state = "shorthand_beginend1f_$x"
+  yield_fixture()
+  global state = ""
+end
 
 
 @fixture shorthand_beginend2a(x, y) = global state = "shorthand_beginend2a_$(x)_$(y)"
@@ -54,6 +59,11 @@ end
 end
 @fixture shorthand_beginend2e(x::Integer, y::Integer) = begin
   global state = "shorthand_beginend2e_$(x)_$(y)"
+  yield_fixture()
+  global state = ""
+end
+@fixture shorthand_beginend2f{T1, T2}(x::T1, y::T2) = begin
+  global state = "shorthand_beginend2f_$(x)_$(y)"
   yield_fixture()
   global state = ""
 end
@@ -197,6 +207,11 @@ end
   yield_fixture()
   global state = ""
 end
+@fixture function method1e{T}(x::T)
+  global state = "method1e_$x"
+  yield_fixture()
+  global state = ""
+end
 
 
 @fixture function method2a(x, y)
@@ -213,6 +228,11 @@ end
 end
 @fixture function method2d(x::Integer, y::Integer)
   global state = "method2d_$(x)_$(y)"
+  yield_fixture()
+  global state = ""
+end
+@fixture function method2e{T1, T2}(x::T1, y::T2)
+  global state = "method2e_$(x)_$(y)"
   yield_fixture()
   global state = ""
 end
@@ -345,7 +365,7 @@ end
   yield_fixture()
   global state = ""
 end
-@fixture function method0p1d0kw(x=10) # 2 methods
+@fixture function method0p1d0kw(x=10)
   global state = "method0p1d0kw_$x"
   yield_fixture()
   global state = ""
@@ -702,6 +722,15 @@ facts("@Fixture tests") do
     @fact state=>""
   end
 
+  context("shorthand_beginend1f") do
+    res = shorthand_beginend1f(100) do
+      @fact state=>"shorthand_beginend1f_100"
+      1234
+    end
+    @fact res=>1234
+    @fact state=>""
+  end
+
   context("shorthand_beginend2a") do
     res = shorthand_beginend2a(100, 200) do
       @fact state=>"shorthand_beginend2a_100_200"
@@ -744,6 +773,15 @@ facts("@Fixture tests") do
   context("shorthand_beginend2e") do
     res = shorthand_beginend2e(100, 200) do
       @fact state=>"shorthand_beginend2e_100_200"
+      1234
+    end
+    @fact res=>1234
+    @fact state=>""
+  end
+
+  context("shorthand_beginend2f") do
+    res = shorthand_beginend2f(100, 200) do
+      @fact state=>"shorthand_beginend2f_100_200"
       1234
     end
     @fact res=>1234
@@ -817,6 +855,15 @@ facts("@Fixture tests") do
     @fact state=>""
   end
 
+  context("method1e") do
+    res = method1e(100) do
+      @fact state=>"method1e_100"
+      1234
+    end
+    @fact res=>1234
+    @fact state=>""
+  end
+
   context("method2a") do
     res = method2a(100, 200) do
       @fact state=>"method2a_100_200"
@@ -849,6 +896,15 @@ facts("@Fixture tests") do
   context("method2d") do
     res = method2d(100, 200) do
       @fact state=>"method2d_100_200"
+      1234
+    end
+    @fact res=>1234
+    @fact state=>""
+  end
+
+  context("method2e") do
+    res = method2e(100, 200) do
+      @fact state=>"method2e_100_200"
       1234
     end
     @fact res=>1234

@@ -18,12 +18,12 @@ function flatten_nested_block(ex::Expr)
 end
 
 function insert_function_as_first_argument_to_method(ex::Expr)
-  if length(ex.args[1].args)>=2 && typeof(ex.args[1].args[2])==Expr && ex.args[1].args[2].head==:parameters
+  if length(ex.args[1].args)>=2 && isa(ex.args[1].args[2],Expr) && ex.args[1].args[2].head==:parameters
     # Add ecbf47d557eb469c9fc755f8e07f11f7::Function between the parameters and the other arguments
-    ex.args[1].args = [ex.args[1].args[1:2], :(ecbf47d557eb469c9fc755f8e07f11f7::Function), ex.args[1].args[3:]...]
+    ex.args[1].args = Any[ex.args[1].args[1:2]..., :(ecbf47d557eb469c9fc755f8e07f11f7::Function), ex.args[1].args[3:]...]
   else
     # Add ecbf47d557eb469c9fc755f8e07f11f7::Function between the name and the other arguments
-    ex.args[1].args = [ex.args[1].args[1], :(ecbf47d557eb469c9fc755f8e07f11f7::Function), ex.args[1].args[2:]...]
+    ex.args[1].args = Any[ex.args[1].args[1], :(ecbf47d557eb469c9fc755f8e07f11f7::Function), ex.args[1].args[2:]...]
   end
 end
 
@@ -34,18 +34,17 @@ macro fixture(ex::Expr)
       insert_function_as_first_argument_to_method(ex)
     else # ex.args[1].head == :tuple
       # Add ecbf47d557eb469c9fc755f8e07f11f7::Function as the first argument
-      ex.args[1].args = [:(ecbf47d557eb469c9fc755f8e07f11f7::Function), ex.args[1].args...]
+      ex.args[1].args = Any[:(ecbf47d557eb469c9fc755f8e07f11f7::Function), ex.args[1].args...]
     end
   elseif ex.head == :->
     # Add ecbf47d557eb469c9fc755f8e07f11f7::Function, where depends on how many other args there are
     if length(ex.args) == 1
-      ex.args = [:(ecbf47d557eb469c9fc755f8e07f11f7::Function), ex.args...]
+      ex.args = Any[:(ecbf47d557eb469c9fc755f8e07f11f7::Function), ex.args...]
     else # length(ex.args) == 2
-      # TODO: not working
-      if typeof(ex.args[1]) == Symbol || ex.args[1].head!=:tuple
+      if isa(ex.args[1], Symbol) || ex.args[1].head!=:tuple
         ex.args[1] = Expr(:tuple, :(ecbf47d557eb469c9fc755f8e07f11f7::Function), ex.args[1])
       else # ex.args[1].head==:tuple
-        ex.args[1].args = [:(ecbf47d557eb469c9fc755f8e07f11f7::Function), ex.args[1].args...]
+        ex.args[1].args = Any[:(ecbf47d557eb469c9fc755f8e07f11f7::Function), ex.args[1].args...]
       end
     end
   elseif ex.head == :(=) && ex.args[1].head == :call
@@ -57,7 +56,7 @@ macro fixture(ex::Expr)
   const body = flatten_nested_block(ex.args[end])
   if body.head == :block
     i = findfirst(body.args) do v
-      if typeof(v)==Expr && v.head==:call && v.args[1]==:yield_fixture
+      if isa(v, Expr) && v.head==:call && v.args[1]==:yield_fixture
         true
       else
         false
@@ -68,7 +67,7 @@ macro fixture(ex::Expr)
       const call_expr = copy(body.args[i])
       call_expr.args[1] = :ecbf47d557eb469c9fc755f8e07f11f7
 
-      body.args = [body.args[1:(i-1)]...,
+      body.args = Any[body.args[1:(i-1)]...,
                      quote
                        try
                          return $call_expr
@@ -78,7 +77,7 @@ macro fixture(ex::Expr)
                      end
                   ]
     else
-      body.args = [body.args..., :(ecbf47d557eb469c9fc755f8e07f11f7())]
+      body.args = Any[body.args..., :(ecbf47d557eb469c9fc755f8e07f11f7())]
     end
   else
     error("Expected a :block got a $(body.head)")
