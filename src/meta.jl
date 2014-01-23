@@ -18,7 +18,7 @@ end
 
 immutable ParsedArgument
   name::Symbol
-  typ::Symbol
+  typ::Union(Symbol, Expr)
   varargs::Bool
   default::Any
   ParsedArgument(name::Symbol) = new(name, :Any, false)
