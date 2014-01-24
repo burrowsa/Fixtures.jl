@@ -63,6 +63,10 @@ function parse_function_keyword_args!(out::ParsedFunction, args::Array{Any,1 })
   out.kwargs = map(ParsedArgument, args)
 end
 
+function flatten_nested_block(x::Any)
+  return Expr(:block, x)
+end
+
 function flatten_nested_block(ex::Expr)
   # TODO: is this copy necessary?
   return flatten_nested_block_impl(copy(ex))
