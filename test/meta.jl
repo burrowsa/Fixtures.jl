@@ -1,10 +1,10 @@
-# TODO: test body
-# TODO: repeat for shorthand, annoymous and lambdas
-
 module MetaTests
 
 using Fixtures.Meta
+using Fixtures.Matcher
 using FactCheck
+
+const ANY_LINE_NUMBER = Matcher(v -> isa(v, LineNumberNode) || (isa(v, Expr) && v.head==:line), "Any line number")
 
 
 facts("Meta.parse_function tests") do
@@ -1047,6 +1047,233 @@ facts("Meta.parse_function tests") do
 
     @fact isdefined(func, :kwargs) => false
   end
+
+  #############################################################################
+
+  context("Method with a numeric literal body") do
+    func = parse_function(:(function hello() 10 end))
+    @fact func.name => :hello
+    @fact isdefined(func, :types) => false
+    @fact isdefined(func, :kwargs) => false
+    @fact func.body => Expr(:block, ANY_LINE_NUMBER, 10)
+    @fact func.args => []
+  end
+
+  context("Shorthand method with a numeric literal body") do
+    func = parse_function(:(hello() = 10))
+    @fact func.name => :hello
+    @fact isdefined(func, :types) => false
+    @fact isdefined(func, :kwargs) => false
+    @fact func.body => Expr(:block, 10)
+    @fact func.args => []
+  end
+
+  context("Lambda with a numeric literal body") do
+    func = parse_function(:(() -> 10))
+    @fact isdefined(func, :name) => false
+    @fact isdefined(func, :types) => false
+    @fact isdefined(func, :kwargs) => false
+    @fact func.body => Expr(:block, ANY_LINE_NUMBER, 10)
+    @fact func.args => []
+  end
+
+  context("Anonymous function with a numeric literal body") do
+    func = parse_function(:(function() 10 end))
+    @fact isdefined(func, :name) => false
+    @fact isdefined(func, :types) => false
+    @fact isdefined(func, :kwargs) => false
+    @fact func.body => Expr(:block, ANY_LINE_NUMBER, 10)
+    @fact func.args => []
+  end
+
+  #----------------------------------------------------------------------------
+
+  context("Method with a symbol body") do
+    func = parse_function(:(function hello() x end))
+    @fact func.name => :hello
+    @fact isdefined(func, :types) => false
+    @fact isdefined(func, :kwargs) => false
+    @fact func.body => Expr(:block, ANY_LINE_NUMBER, :x)
+    @fact func.args => []
+  end
+
+  context("Shorthand method with a symbol body") do
+    func = parse_function(:(hello() = x))
+    @fact func.name => :hello
+    @fact isdefined(func, :types) => false
+    @fact isdefined(func, :kwargs) => false
+    @fact func.body => Expr(:block, :x)
+    @fact func.args => []
+  end
+
+  context("Lambda with a symbol body") do
+    func = parse_function(:(() -> x))
+    @fact isdefined(func, :name) => false
+    @fact isdefined(func, :types) => false
+    @fact isdefined(func, :kwargs) => false
+    @fact func.body => Expr(:block, ANY_LINE_NUMBER, :x)
+    @fact func.args => []
+  end
+
+  context("Anonymous function with a symbol body") do
+    func = parse_function(:(function() x end))
+    @fact isdefined(func, :name) => false
+    @fact isdefined(func, :types) => false
+    @fact isdefined(func, :kwargs) => false
+    @fact func.body => Expr(:block, ANY_LINE_NUMBER, :x)
+    @fact func.args => []
+  end
+
+  #----------------------------------------------------------------------------
+
+  context("Method with a expression body") do
+    func = parse_function(:(function hello() x + 10 end))
+    @fact func.name => :hello
+    @fact isdefined(func, :types) => false
+    @fact isdefined(func, :kwargs) => false
+    @fact func.body => Expr(:block, ANY_LINE_NUMBER, Expr(:call, :+, :x, 10))
+    @fact func.args => []
+  end
+
+  context("Shorthand method with a expression body") do
+    func = parse_function(:(hello() = x + 10))
+    @fact func.name => :hello
+    @fact isdefined(func, :types) => false
+    @fact isdefined(func, :kwargs) => false
+    @fact func.body => Expr(:call, :+, :x, 10)
+    @fact func.args => []
+  end
+
+  context("Lambda with a expression body") do
+    func = parse_function(:(() -> x + 10))
+    @fact isdefined(func, :name) => false
+    @fact isdefined(func, :types) => false
+    @fact isdefined(func, :kwargs) => false
+    @fact func.body => Expr(:block, ANY_LINE_NUMBER, Expr(:call, :+, :x, 10))
+    @fact func.args => []
+  end
+
+  context("Anonymous function with a expression body") do
+    func = parse_function(:(function() x + 10 end))
+    @fact isdefined(func, :name) => false
+    @fact isdefined(func, :types) => false
+    @fact isdefined(func, :kwargs) => false
+    @fact func.body => Expr(:block, ANY_LINE_NUMBER, Expr(:call, :+, :x, 10))
+    @fact func.args => []
+  end
+
+  #----------------------------------------------------------------------------
+
+  context("Method with a multiline body") do
+    func = parse_function(:(function hello()
+                              y = x + 10
+                              y += some_func(z)
+                              return y
+                            end))
+    @fact func.name => :hello
+    @fact isdefined(func, :types) => false
+    @fact isdefined(func, :kwargs) => false
+    @fact func.body => Expr(:block,
+                            ANY_LINE_NUMBER,
+                            Expr(:(=), :y, Expr(:call, :+, :x, 10)),
+                            ANY_LINE_NUMBER,
+                            Expr(:(+=), :y, Expr(:call, :some_func, :z)),
+                            ANY_LINE_NUMBER,
+                            Expr(:return, :y),
+                            )
+    @fact func.args => []
+  end
+
+  context("Shorthand method with a multiline body with begin end") do
+    func = parse_function(:(hello() = begin
+                              y = x + 10
+                              y += some_func(z)
+                              return y
+                            end))
+    @fact func.name => :hello
+    @fact isdefined(func, :types) => false
+    @fact isdefined(func, :kwargs) => false
+    @fact func.body => Expr(:block,
+                            ANY_LINE_NUMBER,
+                            Expr(:(=), :y, Expr(:call, :+, :x, 10)),
+                            ANY_LINE_NUMBER,
+                            Expr(:(+=), :y, Expr(:call, :some_func, :z)),
+                            ANY_LINE_NUMBER,
+                            Expr(:return, :y),
+                            )
+    @fact func.args => []
+  end
+
+  context("Shorthand method with a multiline body with brackets") do
+    func = parse_function(:(hello() = (y = x + 10;
+                                       y += some_func(z);
+                                       return y)))
+    @fact func.name => :hello
+    @fact isdefined(func, :types) => false
+    @fact isdefined(func, :kwargs) => false
+    @fact func.body => Expr(:block,
+                            Expr(:(=), :y, Expr(:call, :+, :x, 10)),
+                            Expr(:(+=), :y, Expr(:call, :some_func, :z)),
+                            Expr(:return, :y),
+                            )
+    @fact func.args => []
+  end
+
+  context("Lambda with a multiline body with begin end") do
+    func = parse_function(:(() -> begin
+                              y = x + 10
+                              y += some_func(z)
+                              return y
+                            end))
+    @fact isdefined(func, :name) => false
+    @fact isdefined(func, :types) => false
+    @fact isdefined(func, :kwargs) => false
+    @fact func.body => Expr(:block,
+                            ANY_LINE_NUMBER,
+                            Expr(:(=), :y, Expr(:call, :+, :x, 10)),
+                            ANY_LINE_NUMBER,
+                            Expr(:(+=), :y, Expr(:call, :some_func, :z)),
+                            ANY_LINE_NUMBER,
+                            Expr(:return, :y),
+                            )
+    @fact func.args => []
+  end
+
+  context("Lambda with a multiline body with brackets") do
+    func = parse_function(:(() -> (y = x + 10;
+                                   y += some_func(z);
+                                   return y)))
+    @fact isdefined(func, :name) => false
+    @fact isdefined(func, :types) => false
+    @fact isdefined(func, :kwargs) => false
+    @fact func.body => Expr(:block,
+                            Expr(:(=), :y, Expr(:call, :+, :x, 10)),
+                            Expr(:(+=), :y, Expr(:call, :some_func, :z)),
+                            Expr(:return, :y),
+                            )
+    @fact func.args => []
+  end
+
+  context("Anonymous function with a multiline body") do
+    func = parse_function(:(function()
+                              y = x + 10
+                              y += some_func(z)
+                              return y
+                            end))
+    @fact isdefined(func, :name) => false
+    @fact isdefined(func, :types) => false
+    @fact isdefined(func, :kwargs) => false
+    @fact func.body => Expr(:block,
+                            ANY_LINE_NUMBER,
+                            Expr(:(=), :y, Expr(:call, :+, :x, 10)),
+                            ANY_LINE_NUMBER,
+                            Expr(:(+=), :y, Expr(:call, :some_func, :z)),
+                            ANY_LINE_NUMBER,
+                            Expr(:return, :y),
+                            )
+    @fact func.args => []
+  end
+
 end
 
 end
