@@ -17,6 +17,11 @@ end
   yield_fixture()
   global state = ""
 end
+@fixture (shorthand_beginend0e)() = begin
+  global state = "shorthand_beginend0e"
+  yield_fixture()
+  global state = ""
+end
 
 
 @fixture shorthand_beginend1a(x) = global state = "shorthand_beginend1a_$x"
@@ -185,6 +190,11 @@ end
 end
 @fixture function method0c()
   global state = "method0c"
+  yield_fixture()
+  global state = ""
+end
+@fixture function (method0d)()
+  global state = "method0d"
   yield_fixture()
   global state = ""
 end
@@ -674,6 +684,15 @@ facts("@Fixture tests") do
     @fact state=>""
   end
 
+  context("shorthand_beginend0e") do
+    res = shorthand_beginend0e() do
+      @fact state=>"shorthand_beginend0e"
+      1234
+    end
+    @fact res=>1234
+    @fact state=>""
+  end
+
   context("shorthand_beginend1a") do
     res = shorthand_beginend1a(100) do
       @fact state=>"shorthand_beginend1a_100"
@@ -811,6 +830,15 @@ facts("@Fixture tests") do
   context("method0c") do
     res = method0c() do
       @fact state=>"method0c"
+      1234
+    end
+    @fact res=>1234
+    @fact state=>""
+  end
+
+  context("method0d") do
+    res = method0d() do
+      @fact state=>"method0d"
       1234
     end
     @fact res=>1234
