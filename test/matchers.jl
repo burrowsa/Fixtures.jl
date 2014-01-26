@@ -69,6 +69,51 @@ facts("Matchers tests") do
       @fact (matcher!=value) => not(expected)
     end
   end
+
+  const ANYTHING_LESS_THAN_SEVEN = Matcher(x->x<7, "Anything less than seven")
+  const ANY_INTEGER = anything_of_type(Integer)
+
+  context("A custom Matcher") do
+    @fact (-1234==ANYTHING_LESS_THAN_SEVEN) => true
+    @fact (6==ANYTHING_LESS_THAN_SEVEN) => true
+    @fact (7==ANYTHING_LESS_THAN_SEVEN) => false
+    @fact (-1234.56==ANYTHING_LESS_THAN_SEVEN) => true
+    @fact (6.54321==ANYTHING_LESS_THAN_SEVEN) => true
+    @fact (7.89==ANYTHING_LESS_THAN_SEVEN) => false
+  end
+
+  context("Composite matchers: and") do
+    const ANY_INTEGER_LESS_THAN_SEVEN = ANYTHING_LESS_THAN_SEVEN & ANY_INTEGER
+
+    @fact (-1234==ANY_INTEGER_LESS_THAN_SEVEN) => true
+    @fact (6==ANY_INTEGER_LESS_THAN_SEVEN) => true
+    @fact (7==ANY_INTEGER_LESS_THAN_SEVEN) => false
+    @fact (-1234.56==ANY_INTEGER_LESS_THAN_SEVEN) => false
+    @fact (6.54321==ANY_INTEGER_LESS_THAN_SEVEN) => false
+    @fact (7.89==ANY_INTEGER_LESS_THAN_SEVEN) => false
+  end
+
+  context("Composite matchers: or") do
+    const ANY_INTEGER_OR_ANYTHING_LESS_THAN_SEVEN = ANYTHING_LESS_THAN_SEVEN | ANY_INTEGER
+
+    @fact (-1234==ANY_INTEGER_OR_ANYTHING_LESS_THAN_SEVEN) => true
+    @fact (6==ANY_INTEGER_OR_ANYTHING_LESS_THAN_SEVEN) => true
+    @fact (7==ANY_INTEGER_OR_ANYTHING_LESS_THAN_SEVEN) => true
+    @fact (1234==ANY_INTEGER_OR_ANYTHING_LESS_THAN_SEVEN) => true
+    @fact (-1234.56==ANY_INTEGER_OR_ANYTHING_LESS_THAN_SEVEN) => true
+    @fact (6.54321==ANY_INTEGER_OR_ANYTHING_LESS_THAN_SEVEN) => true
+    @fact (7.89==ANY_INTEGER_OR_ANYTHING_LESS_THAN_SEVEN) => false
+  end
+
+  context("Composite matchers: not") do
+    const ANYTHING_GREATER_THAN_OR_EQUAL_TO_SEVEN = !ANYTHING_LESS_THAN_SEVEN
+    @fact (-1234==ANYTHING_LESS_THAN_SEVEN) => true
+    @fact (6==ANYTHING_LESS_THAN_SEVEN) => true
+    @fact (7==ANYTHING_LESS_THAN_SEVEN) => false
+    @fact (-1234.56==ANYTHING_LESS_THAN_SEVEN) => true
+    @fact (6.54321==ANYTHING_LESS_THAN_SEVEN) => true
+    @fact (7.89==ANYTHING_LESS_THAN_SEVEN) => false
+  end
 end
 
 end
