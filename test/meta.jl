@@ -17,6 +17,15 @@ facts("Meta.parse_function tests") do
     @fact func.args => []
   end
 
+  context("Empty method with no args and bracketed name") do
+    func = parse_function(:(function (hello)() end))
+    @fact func.name => :hello
+    @fact isdefined(func, :types) => false
+    @fact isdefined(func, :kwargs) => false
+    @fact func.body => quote end
+    @fact func.args => []
+  end
+
   context("Empty method with one untyped arg") do
     func = parse_function(:(function hello(x) end))
     @fact func.name => :hello
@@ -391,6 +400,15 @@ facts("Meta.parse_function tests") do
 
   context("Empty shorthand method with no args") do
     func = parse_function(:(hello() = begin end))
+    @fact func.name => :hello
+    @fact isdefined(func, :types) => false
+    @fact isdefined(func, :kwargs) => false
+    @fact func.body => quote end
+    @fact func.args => []
+  end
+
+  context("Empty shorthand method with no args and bracketed name") do
+    func = parse_function(:((hello)() = begin end))
     @fact func.name => :hello
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
