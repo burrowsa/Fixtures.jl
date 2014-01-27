@@ -1,4 +1,4 @@
-export ANYTHING, anything_of_type, anything_in, anything_containing, Matcher
+export ANYTHING, anything_of_type, anything_in, anything_containing, Matcher, redescribe
 
 immutable Matcher
   predicate::Function
@@ -21,6 +21,9 @@ Base.show(io::IO, matcher::Matcher) = print(io, matcher.description)
 
 
 (!)(matcher::Matcher) = Matcher(x->(!matcher.predicate(x)), "(not $(matcher.description))")
+
+redescribe(matcher::Matcher, description::String) = Matcher(matcher.predicate, description)
+
 
 anything_of_type(T::Type) = Matcher(v -> isa(v, T), "anything_of_type($T)")
 anything_in(value::Any) = Matcher(v -> v in value, "anything_in($value)")
