@@ -1,10 +1,10 @@
 module MetaTests
 
+using Fixtures
 using Fixtures.Meta
-using Fixtures.Matcher
 using FactCheck
 
-const ANY_LINE_NUMBER = Matcher(v -> isa(v, LineNumberNode) || (isa(v, Expr) && v.head==:line), "Any line number")
+const ANY_LINE_NUMBER = redescribe(anything_of_type(LineNumberNode) | (anything_of_type(Expr) & Matcher(v->v.head==:line, "expr.head==:line")), "Any line number")
 
 
 facts("Meta.parse_function tests") do
