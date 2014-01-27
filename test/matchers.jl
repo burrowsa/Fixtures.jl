@@ -114,6 +114,24 @@ facts("Matchers tests") do
     @fact (6.54321==ANYTHING_LESS_THAN_SEVEN) => true
     @fact (7.89==ANYTHING_LESS_THAN_SEVEN) => false
   end
+
+  context("Redescribe a composite matcher") do
+    const composite1 = ANYTHING_LESS_THAN_SEVEN | ANY_INTEGER
+
+    @fact composite1.description => "(Anything less than seven || anything_of_type(Integer))"
+
+    const composite2 = redescribe(composite1, "A lovely description of our matcher")
+
+    @fact composite2.description => "A lovely description of our matcher"
+
+    @fact (-1234==composite2) => true
+    @fact (6==composite2) => true
+    @fact (7==composite2) => true
+    @fact (1234==composite2) => true
+    @fact (-1234.56==composite2) => true
+    @fact (6.54321==composite2) => true
+    @fact (7.89==composite2) => false
+  end
 end
 
 end
