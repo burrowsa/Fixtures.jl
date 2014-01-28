@@ -6,11 +6,29 @@ using FactCheck
 
 const ANY_LINE_NUMBER = redescribe(anything_of_type(LineNumberNode) | (anything_of_type(Expr) & Matcher(v->v.head==:line, "expr.head==:line")), "Any line number")
 
+module MetaTestModule1
+  module MetaTestModule2
+    module MetaTestModule3
+      function hello()
+      end
+    end
+    function hello()
+    end
+  end
+  function hello()
+  end
+  function baz()
+  end
+  function boo()
+  end
+end
+
 
 facts("Meta.parse_function tests") do
   context("Empty method with no args") do
     func = parse_function(:(function hello() end))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -20,6 +38,7 @@ facts("Meta.parse_function tests") do
   context("Empty method with no args and bracketed name") do
     func = parse_function(:(function (hello)() end))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -29,6 +48,7 @@ facts("Meta.parse_function tests") do
   context("Empty method with one untyped arg") do
     func = parse_function(:(function hello(x) end))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -43,6 +63,7 @@ facts("Meta.parse_function tests") do
   context("Empty method with two untyped args") do
     func = parse_function(:(function hello(x,y) end))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -61,6 +82,7 @@ facts("Meta.parse_function tests") do
   context("Empty method with one typed arg") do
     func = parse_function(:(function hello(x::Integer) end))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -75,6 +97,7 @@ facts("Meta.parse_function tests") do
   context("Empty method with two typed args") do
     func = parse_function(:(function hello(x::Integer, y::FloatingPoint) end))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -93,6 +116,7 @@ facts("Meta.parse_function tests") do
   context("Empty method with one union typed arg") do
     func = parse_function(:(function hello(x::Union(Integer,FloatingPoint)) end))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -107,6 +131,7 @@ facts("Meta.parse_function tests") do
   context("Empty method with one untyped default arg") do
     func = parse_function(:(function hello(x=100) end))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -121,6 +146,7 @@ facts("Meta.parse_function tests") do
   context("Empty method with two untyped default args") do
     func = parse_function(:(function hello(x=100,y=200) end))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -139,6 +165,7 @@ facts("Meta.parse_function tests") do
   context("Empty method with one typed default arg") do
     func = parse_function(:(function hello(x::Integer=100) end))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -153,6 +180,7 @@ facts("Meta.parse_function tests") do
   context("Empty method with two typed default args") do
     func = parse_function(:(function hello(x::Integer=100, y::FloatingPoint=200.0) end))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -171,6 +199,7 @@ facts("Meta.parse_function tests") do
   context("Empty method with one untyped vararg") do
     func = parse_function(:(function hello(x...) end))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -185,6 +214,7 @@ facts("Meta.parse_function tests") do
   context("Empty method with one typed vararg") do
     func = parse_function(:(function hello(x::Integer...) end))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -199,6 +229,7 @@ facts("Meta.parse_function tests") do
   context("Empty method with one untyped default vararg") do
     func = parse_function(:(function hello(x...=100) end))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -213,6 +244,7 @@ facts("Meta.parse_function tests") do
   context("Empty method with one typed default vararg") do
     func = parse_function(:(function hello(x::Integer...=100) end))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -227,6 +259,7 @@ facts("Meta.parse_function tests") do
   context("Empty method with one untyped kwarg") do
     func = parse_function(:(function hello(;x=100) end))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact func.args => []
     @fact func.body => quote end
@@ -241,6 +274,7 @@ facts("Meta.parse_function tests") do
   context("Empty method with two untyped kwargs") do
     func = parse_function(:(function hello(;x=100,y=200) end))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact func.args => []
     @fact func.body => quote end
@@ -259,6 +293,7 @@ facts("Meta.parse_function tests") do
   context("Empty method with one typed kwarg") do
     func = parse_function(:(function hello(;x::Integer=100) end))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact func.args => []
     @fact func.body => quote end
@@ -273,6 +308,7 @@ facts("Meta.parse_function tests") do
   context("Empty method with two typed kwargs") do
     func = parse_function(:(function hello(;x::Integer=100, y::FloatingPoint=200.0) end))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact func.args => []
     @fact func.body => quote end
@@ -291,6 +327,7 @@ facts("Meta.parse_function tests") do
   context("Empty method with one union typed kwarg") do
     func = parse_function(:(function hello(;x::Union(Integer, FloatingPoint)=100) end))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact func.args => []
     @fact func.body => quote end
@@ -305,6 +342,7 @@ facts("Meta.parse_function tests") do
   context("Empty method with one untyped varkwarg") do
     func = parse_function(:(function hello(;x...) end))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact func.args => []
     @fact func.body => quote end
@@ -319,6 +357,7 @@ facts("Meta.parse_function tests") do
   context("Empty method with one typed varkwarg") do
     func = parse_function(:(function hello(;x::Array...) end))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact func.args => []
     @fact func.body => quote end
@@ -333,6 +372,7 @@ facts("Meta.parse_function tests") do
   context("Empty method with a mix of args and kwargs") do
     func = parse_function(:(function hello(x,y::Integer,z=99,rest...;a::Integer=100,b=200,c...) end))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact func.body => quote end
 
@@ -369,9 +409,40 @@ facts("Meta.parse_function tests") do
     @fact isdefined(func.kwargs[3], :default) => false
   end
 
+  context("Empty method with namespace 1 deep") do
+    func = parse_function(:(function MetaTestModule1.hello() end))
+    @fact func.name => :hello
+    @fact func.namespace => [:MetaTestModule1]
+    @fact isdefined(func, :types) => false
+    @fact isdefined(func, :kwargs) => false
+    @fact func.body => quote end
+    @fact func.args => []
+  end
+
+  context("Empty method with namespace 2 deep") do
+    func = parse_function(:(function MetaTestModule1.MetaTestModule2.hello() end))
+    @fact func.name => :hello
+    @fact func.namespace => [:MetaTestModule1, :MetaTestModule2]
+    @fact isdefined(func, :types) => false
+    @fact isdefined(func, :kwargs) => false
+    @fact func.body => quote end
+    @fact func.args => []
+  end
+
+  context("Empty method with namespace 3 deep") do
+    func = parse_function(:(function MetaTestModule1.MetaTestModule2.MetaTestModule3.hello() end))
+    @fact func.name => :hello
+    @fact func.namespace => [:MetaTestModule1, :MetaTestModule2, :MetaTestModule3]
+    @fact isdefined(func, :types) => false
+    @fact isdefined(func, :kwargs) => false
+    @fact func.body => quote end
+    @fact func.args => []
+  end
+
   context("Empty method with no type parameter") do
     func = parse_function(:(function hello() end))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -381,6 +452,7 @@ facts("Meta.parse_function tests") do
   context("Empty method with one type parameter") do
     func = parse_function(:(function hello{T}() end))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact func.types => [:T]
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -390,7 +462,18 @@ facts("Meta.parse_function tests") do
   context("Empty method with two type parameters") do
     func = parse_function(:(function hello{T1, T2}() end))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact func.types => [:T1, :T2]
+    @fact isdefined(func, :kwargs) => false
+    @fact func.body => quote end
+    @fact func.args => []
+  end
+
+  context("Empty method with namespace 3 deep and a type parameter") do
+    func = parse_function(:(function MetaTestModule1.MetaTestModule2.MetaTestModule3.hello{T}() end))
+    @fact func.name => :hello
+    @fact func.namespace => [:MetaTestModule1, :MetaTestModule2, :MetaTestModule3]
+    @fact func.types => [:T]
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
     @fact func.args => []
@@ -401,6 +484,7 @@ facts("Meta.parse_function tests") do
   context("Empty shorthand method with no args") do
     func = parse_function(:(hello() = begin end))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -410,6 +494,7 @@ facts("Meta.parse_function tests") do
   context("Empty shorthand method with no args and bracketed name") do
     func = parse_function(:((hello)() = begin end))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -419,6 +504,7 @@ facts("Meta.parse_function tests") do
   context("Empty shorthand method with one untyped arg") do
     func = parse_function(:(hello(x) = begin end))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -433,6 +519,7 @@ facts("Meta.parse_function tests") do
   context("Empty shorthand method with two untyped args") do
     func = parse_function(:(hello(x,y) = begin end))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -451,6 +538,7 @@ facts("Meta.parse_function tests") do
   context("Empty shorthand method with one typed arg") do
     func = parse_function(:(hello(x::Integer) = begin end))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -465,6 +553,7 @@ facts("Meta.parse_function tests") do
   context("Empty shorthand method with two typed args") do
     func = parse_function(:(hello(x::Integer, y::FloatingPoint) = begin end))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -483,6 +572,7 @@ facts("Meta.parse_function tests") do
   context("Empty shorthand method with one union typed arg") do
     func = parse_function(:(hello(x::Union(Integer,FloatingPoint)) = begin end))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -497,6 +587,7 @@ facts("Meta.parse_function tests") do
   context("Empty shorthand method with one untyped default arg") do
     func = parse_function(:(hello(x=100) = begin end))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -511,6 +602,7 @@ facts("Meta.parse_function tests") do
   context("Empty shorthand method with two untyped default args") do
     func = parse_function(:(hello(x=100,y=200) = begin end))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -529,6 +621,7 @@ facts("Meta.parse_function tests") do
   context("Empty shorthand method with one typed default arg") do
     func = parse_function(:(hello(x::Integer=100) = begin end))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -543,6 +636,7 @@ facts("Meta.parse_function tests") do
   context("Empty shorthand method with two typed default args") do
     func = parse_function(:(hello(x::Integer=100, y::FloatingPoint=200.0) = begin end))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -561,6 +655,7 @@ facts("Meta.parse_function tests") do
   context("Empty shorthand method with one untyped vararg") do
     func = parse_function(:(hello(x...) = begin end))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -575,6 +670,7 @@ facts("Meta.parse_function tests") do
   context("Empty shorthand method with one typed vararg") do
     func = parse_function(:(hello(x::Integer...) = begin end))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -589,6 +685,7 @@ facts("Meta.parse_function tests") do
   context("Empty shorthand method with one untyped default vararg") do
     func = parse_function(:(hello(x...=100) = begin end))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -603,6 +700,7 @@ facts("Meta.parse_function tests") do
   context("Empty shorthand method with one typed default vararg") do
     func = parse_function(:(hello(x::Integer...=100) = begin end))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -617,6 +715,7 @@ facts("Meta.parse_function tests") do
   context("Empty shorthand method with one untyped kwarg") do
     func = parse_function(:(hello(;x=100) = begin end))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact func.args => []
     @fact func.body => quote end
@@ -631,6 +730,7 @@ facts("Meta.parse_function tests") do
   context("Empty shorthand method with two untyped kwargs") do
     func = parse_function(:(hello(;x=100,y=200) = begin end))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact func.args => []
     @fact func.body => quote end
@@ -649,6 +749,7 @@ facts("Meta.parse_function tests") do
   context("Empty shorthand method with one typed kwarg") do
     func = parse_function(:(hello(;x::Integer=100) = begin end))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact func.args => []
     @fact func.body => quote end
@@ -663,6 +764,7 @@ facts("Meta.parse_function tests") do
   context("Empty shorthand method with two typed kwargs") do
     func = parse_function(:(hello(;x::Integer=100, y::FloatingPoint=200.0) = begin end))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact func.args => []
     @fact func.body => quote end
@@ -681,6 +783,7 @@ facts("Meta.parse_function tests") do
   context("Empty shorthand method with one union typed kwarg") do
     func = parse_function(:(hello(;x::Union(Integer, FloatingPoint)=100) = begin end))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact func.args => []
     @fact func.body => quote end
@@ -695,6 +798,7 @@ facts("Meta.parse_function tests") do
   context("Empty shorthand method with one untyped varkwarg") do
     func = parse_function(:(hello(;x...) = begin end))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact func.args => []
     @fact func.body => quote end
@@ -709,6 +813,7 @@ facts("Meta.parse_function tests") do
   context("Empty shorthand method with one typed varkwarg") do
     func = parse_function(:(hello(;x::Integer...) = begin end))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact func.args => []
     @fact func.body => quote end
@@ -723,6 +828,7 @@ facts("Meta.parse_function tests") do
   context("Empty shorthand method with a mix of args and kwargs") do
     func = parse_function(:(hello(x,y::Integer,z=99,rest...;a::Integer=100,b=200,c...) = begin end))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact func.body => quote end
 
@@ -759,9 +865,40 @@ facts("Meta.parse_function tests") do
     @fact isdefined(func.kwargs[3], :default) => false
   end
 
+  context("Empty shorthand method with namespace 1 deep") do
+    func = parse_function(:(MetaTestModule1.hello() = begin end))
+    @fact func.name => :hello
+    @fact func.namespace => [:MetaTestModule1]
+    @fact isdefined(func, :types) => false
+    @fact isdefined(func, :kwargs) => false
+    @fact func.body => quote end
+    @fact func.args => []
+  end
+
+  context("Empty shorthand method with namespace 2 deep") do
+    func = parse_function(:(MetaTestModule1.MetaTestModule2.hello() = begin end))
+    @fact func.name => :hello
+    @fact func.namespace => [:MetaTestModule1, :MetaTestModule2]
+    @fact isdefined(func, :types) => false
+    @fact isdefined(func, :kwargs) => false
+    @fact func.body => quote end
+    @fact func.args => []
+  end
+
+  context("Empty shorthand method with namespace 3 deep") do
+    func = parse_function(:(MetaTestModule1.MetaTestModule2.MetaTestModule3.hello() = begin end))
+    @fact func.name => :hello
+    @fact func.namespace => [:MetaTestModule1, :MetaTestModule2, :MetaTestModule3]
+    @fact isdefined(func, :types) => false
+    @fact isdefined(func, :kwargs) => false
+    @fact func.body => quote end
+    @fact func.args => []
+  end
+
   context("Empty shorthand method with no type parameter") do
     func = parse_function(:(hello() = begin end))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -771,6 +908,7 @@ facts("Meta.parse_function tests") do
   context("Empty shorthand method with one type parameter") do
     func = parse_function(:(hello{T}() = begin end))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact func.types => [:T]
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -780,7 +918,18 @@ facts("Meta.parse_function tests") do
   context("Empty shorthand method with two type parameters") do
     func = parse_function(:(hello{T1, T2}() = begin end))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact func.types => [:T1, :T2]
+    @fact isdefined(func, :kwargs) => false
+    @fact func.body => quote end
+    @fact func.args => []
+  end
+
+  context("Empty shorthand method with namespace 3 deep and a type parameter") do
+    func = parse_function(:(MetaTestModule1.MetaTestModule2.MetaTestModule3.hello{T}() = begin end))
+    @fact func.name => :hello
+    @fact func.namespace => [:MetaTestModule1, :MetaTestModule2, :MetaTestModule3]
+    @fact func.types => [:T]
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
     @fact func.args => []
@@ -1071,6 +1220,7 @@ facts("Meta.parse_function tests") do
   context("Method with a numeric literal body") do
     func = parse_function(:(function hello() 10 end))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => Expr(:block, ANY_LINE_NUMBER, 10)
@@ -1080,6 +1230,7 @@ facts("Meta.parse_function tests") do
   context("Shorthand method with a numeric literal body") do
     func = parse_function(:(hello() = 10))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => Expr(:block, 10)
@@ -1109,6 +1260,7 @@ facts("Meta.parse_function tests") do
   context("Method with a symbol body") do
     func = parse_function(:(function hello() x end))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => Expr(:block, ANY_LINE_NUMBER, :x)
@@ -1118,6 +1270,7 @@ facts("Meta.parse_function tests") do
   context("Shorthand method with a symbol body") do
     func = parse_function(:(hello() = x))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => Expr(:block, :x)
@@ -1147,6 +1300,7 @@ facts("Meta.parse_function tests") do
   context("Method with a expression body") do
     func = parse_function(:(function hello() x + 10 end))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => Expr(:block, ANY_LINE_NUMBER, Expr(:call, :+, :x, 10))
@@ -1156,6 +1310,7 @@ facts("Meta.parse_function tests") do
   context("Shorthand method with a expression body") do
     func = parse_function(:(hello() = x + 10))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => Expr(:call, :+, :x, 10)
@@ -1189,6 +1344,7 @@ facts("Meta.parse_function tests") do
                               return y
                             end))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => Expr(:block,
@@ -1209,6 +1365,7 @@ facts("Meta.parse_function tests") do
                               return y
                             end))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => Expr(:block,
@@ -1227,6 +1384,7 @@ facts("Meta.parse_function tests") do
                                        y += some_func(z);
                                        return y)))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => Expr(:block,
@@ -1563,6 +1721,39 @@ facts("Meta.emit tests") do
     @fact func(10, 20, 30, b=99, foobar=100) => nothing
   end
 
+  context("Empty method with namespace 1 deep") do
+    pfunc = ParsedFunction(name=:hello,
+                           namespace=[:MetaTestModule1])
+    func = eval(emit(pfunc))
+    @fact (func === MetaTestModule1.hello) => true
+    @fact isgeneric(func) => true
+    @fact func.env.name => :hello
+    @fact func.env.max_args => 0
+    @fact func() => nothing
+  end
+
+  context("Empty method with namespace 2 deep") do
+    pfunc = ParsedFunction(name=:hello,
+                           namespace=[:MetaTestModule1, :MetaTestModule2])
+    func = eval(emit(pfunc))
+    @fact (func === MetaTestModule1.MetaTestModule2.hello) => true
+    @fact isgeneric(func) => true
+    @fact func.env.name => :hello
+    @fact func.env.max_args => 0
+    @fact func() => nothing
+  end
+
+  context("Empty method with namespace 3 deep") do
+    pfunc = ParsedFunction(name=:hello,
+                           namespace=[:MetaTestModule1, :MetaTestModule2, :MetaTestModule3])
+    func = eval(emit(pfunc))
+    @fact (func === MetaTestModule1.MetaTestModule2.MetaTestModule3.hello) => true
+    @fact isgeneric(func) => true
+    @fact func.env.name => :hello
+    @fact func.env.max_args => 0
+    @fact func() => nothing
+  end
+
   context("Empty method with no type parameter") do
     pfunc = ParsedFunction(name=:hello23,
                            types=Symbol[])
@@ -1594,6 +1785,18 @@ facts("Meta.emit tests") do
     @fact func.env.name => :hello25
     @fact func.env.max_args => 2
     @fact func(10, 20) => nothing
+  end
+
+  context("Empty method with namespace 3 deep and one type parameter") do
+    pfunc = ParsedFunction(name=:hello,
+                           types=[:T],
+                           namespace=[:MetaTestModule1, :MetaTestModule2, :MetaTestModule3])
+    func = eval(emit(pfunc))
+    @fact (func === MetaTestModule1.MetaTestModule2.MetaTestModule3.hello) => true
+    @fact isgeneric(func) => true
+    @fact func.env.name => :hello
+    @fact func.env.max_args => 0
+    @fact func() => nothing
   end
   #############################################################################
 
@@ -1770,6 +1973,7 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
   context("Empty method with no args") do
     func = parse_function(emit(parse_function(:(function hello() end))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -1779,6 +1983,7 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
   context("Empty method with no args and bracketed name") do
     func = parse_function(emit(parse_function(:(function (hello)() end))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -1788,6 +1993,7 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
   context("Empty method with one untyped arg") do
     func = parse_function(emit(parse_function(:(function hello(x) end))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -1802,6 +2008,7 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
   context("Empty method with two untyped args") do
     func = parse_function(emit(parse_function(:(function hello(x,y) end))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -1820,6 +2027,7 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
   context("Empty method with one typed arg") do
     func = parse_function(emit(parse_function(:(function hello(x::Integer) end))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -1834,6 +2042,7 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
   context("Empty method with two typed args") do
     func = parse_function(emit(parse_function(:(function hello(x::Integer, y::FloatingPoint) end))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -1852,6 +2061,7 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
   context("Empty method with one union typed arg") do
     func = parse_function(emit(parse_function(:(function hello(x::Union(Integer,FloatingPoint)) end))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -1866,6 +2076,7 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
   context("Empty method with one untyped default arg") do
     func = parse_function(emit(parse_function(:(function hello(x=100) end))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -1880,6 +2091,7 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
   context("Empty method with two untyped default args") do
     func = parse_function(emit(parse_function(:(function hello(x=100,y=200) end))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -1898,6 +2110,7 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
   context("Empty method with one typed default arg") do
     func = parse_function(emit(parse_function(:(function hello(x::Integer=100) end))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -1912,6 +2125,7 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
   context("Empty method with two typed default args") do
     func = parse_function(emit(parse_function(:(function hello(x::Integer=100, y::FloatingPoint=200.0) end))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -1930,6 +2144,7 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
   context("Empty method with one untyped vararg") do
     func = parse_function(emit(parse_function(:(function hello(x...) end))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -1944,6 +2159,7 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
   context("Empty method with one typed vararg") do
     func = parse_function(emit(parse_function(:(function hello(x::Integer...) end))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -1958,6 +2174,7 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
   context("Empty method with one untyped default vararg") do
     func = parse_function(emit(parse_function(:(function hello(x...=100) end))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -1972,6 +2189,7 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
   context("Empty method with one typed default vararg") do
     func = parse_function(emit(parse_function(:(function hello(x::Integer...=100) end))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -1986,6 +2204,7 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
   context("Empty method with one untyped kwarg") do
     func = parse_function(emit(parse_function(:(function hello(;x=100) end))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact func.args => []
     @fact func.body => quote end
@@ -2000,6 +2219,7 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
   context("Empty method with two untyped kwargs") do
     func = parse_function(emit(parse_function(:(function hello(;x=100,y=200) end))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact func.args => []
     @fact func.body => quote end
@@ -2018,6 +2238,7 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
   context("Empty method with one typed kwarg") do
     func = parse_function(emit(parse_function(:(function hello(;x::Integer=100) end))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact func.args => []
     @fact func.body => quote end
@@ -2032,6 +2253,7 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
   context("Empty method with two typed kwargs") do
     func = parse_function(emit(parse_function(:(function hello(;x::Integer=100, y::FloatingPoint=200.0) end))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact func.args => []
     @fact func.body => quote end
@@ -2050,6 +2272,7 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
   context("Empty method with one union typed kwarg") do
     func = parse_function(emit(parse_function(:(function hello(;x::Union(Integer, FloatingPoint)=100) end))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact func.args => []
     @fact func.body => quote end
@@ -2064,6 +2287,7 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
   context("Empty method with one untyped varkwarg") do
     func = parse_function(emit(parse_function(:(function hello(;x...) end))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact func.args => []
     @fact func.body => quote end
@@ -2078,6 +2302,7 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
   context("Empty method with one typed varkwarg") do
     func = parse_function(emit(parse_function(:(function hello(;x::Integer...) end))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact func.args => []
     @fact func.body => quote end
@@ -2092,6 +2317,7 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
   context("Empty method with a mix of args and kwargs") do
     func = parse_function(emit(parse_function(:(function hello(x,y::Integer,z=99,rest...;a::Integer=100,b=200,c...) end))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact func.body => quote end
 
@@ -2128,9 +2354,40 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
     @fact isdefined(func.kwargs[3], :default) => false
   end
 
+  context("Empty method with namespace 1 deep") do
+    func = parse_function(emit(parse_function(:(function MetaTestModule1.hello() end))))
+    @fact func.name => :hello
+    @fact func.namespace => [:MetaTestModule1]
+    @fact isdefined(func, :types) => false
+    @fact isdefined(func, :kwargs) => false
+    @fact func.body => quote end
+    @fact func.args => []
+  end
+
+  context("Empty method with namespace 2 deep") do
+    func = parse_function(emit(parse_function(:(function MetaTestModule1.MetaTestModule2.hello() end))))
+    @fact func.name => :hello
+    @fact func.namespace => [:MetaTestModule1, :MetaTestModule2]
+    @fact isdefined(func, :types) => false
+    @fact isdefined(func, :kwargs) => false
+    @fact func.body => quote end
+    @fact func.args => []
+  end
+
+  context("Empty method with namespace 3 deep") do
+    func = parse_function(emit(parse_function(:(function MetaTestModule1.MetaTestModule2.MetaTestModule3.hello() end))))
+    @fact func.name => :hello
+    @fact func.namespace => [:MetaTestModule1, :MetaTestModule2, :MetaTestModule3]
+    @fact isdefined(func, :types) => false
+    @fact isdefined(func, :kwargs) => false
+    @fact func.body => quote end
+    @fact func.args => []
+  end
+
   context("Empty method with no type parameter") do
     func = parse_function(emit(parse_function(:(function hello() end))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -2140,6 +2397,7 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
   context("Empty method with one type parameter") do
     func = parse_function(emit(parse_function(:(function hello{T}() end))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact func.types => [:T]
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -2149,7 +2407,18 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
   context("Empty method with two type parameters") do
     func = parse_function(emit(parse_function(:(function hello{T1, T2}() end))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact func.types => [:T1, :T2]
+    @fact isdefined(func, :kwargs) => false
+    @fact func.body => quote end
+    @fact func.args => []
+  end
+
+  context("Empty method with namespace 3 deep and a type parameter") do
+    func = parse_function(emit(parse_function(:(function MetaTestModule1.MetaTestModule2.MetaTestModule3.hello{T}() end))))
+    @fact func.name => :hello
+    @fact func.namespace => [:MetaTestModule1, :MetaTestModule2, :MetaTestModule3]
+    @fact func.types => [:T]
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
     @fact func.args => []
@@ -2160,6 +2429,7 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
   context("Empty shorthand method with no args") do
     func = parse_function(emit(parse_function(:(hello() = begin end))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -2169,6 +2439,7 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
   context("Empty shorthand method with no args and bracketed name") do
     func = parse_function(emit(parse_function(:((hello)() = begin end))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -2178,6 +2449,7 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
   context("Empty shorthand method with one untyped arg") do
     func = parse_function(emit(parse_function(:(hello(x) = begin end))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -2192,6 +2464,7 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
   context("Empty shorthand method with two untyped args") do
     func = parse_function(emit(parse_function(:(hello(x,y) = begin end))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -2210,6 +2483,7 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
   context("Empty shorthand method with one typed arg") do
     func = parse_function(emit(parse_function(:(hello(x::Integer) = begin end))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -2224,6 +2498,7 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
   context("Empty shorthand method with two typed args") do
     func = parse_function(emit(parse_function(:(hello(x::Integer, y::FloatingPoint) = begin end))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -2242,6 +2517,7 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
   context("Empty shorthand method with one union typed arg") do
     func = parse_function(emit(parse_function(:(hello(x::Union(Integer,FloatingPoint)) = begin end))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -2256,6 +2532,7 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
   context("Empty shorthand method with one untyped default arg") do
     func = parse_function(emit(parse_function(:(hello(x=100) = begin end))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -2270,6 +2547,7 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
   context("Empty shorthand method with two untyped default args") do
     func = parse_function(emit(parse_function(:(hello(x=100,y=200) = begin end))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -2288,6 +2566,7 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
   context("Empty shorthand method with one typed default arg") do
     func = parse_function(emit(parse_function(:(hello(x::Integer=100) = begin end))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -2302,6 +2581,7 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
   context("Empty shorthand method with two typed default args") do
     func = parse_function(emit(parse_function(:(hello(x::Integer=100, y::FloatingPoint=200.0) = begin end))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -2320,6 +2600,7 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
   context("Empty shorthand method with one untyped vararg") do
     func = parse_function(emit(parse_function(:(hello(x...) = begin end))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -2334,6 +2615,7 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
   context("Empty shorthand method with one typed vararg") do
     func = parse_function(emit(parse_function(:(hello(x::Integer...) = begin end))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -2348,6 +2630,7 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
   context("Empty shorthand method with one untyped default vararg") do
     func = parse_function(emit(parse_function(:(hello(x...=100) = begin end))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -2362,6 +2645,7 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
   context("Empty shorthand method with one typed default vararg") do
     func = parse_function(emit(parse_function(:(hello(x::Integer...=100) = begin end))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -2376,6 +2660,7 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
   context("Empty shorthand method with one untyped kwarg") do
     func = parse_function(emit(parse_function(:(hello(;x=100) = begin end))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact func.args => []
     @fact func.body => quote end
@@ -2390,6 +2675,7 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
   context("Empty shorthand method with two untyped kwargs") do
     func = parse_function(emit(parse_function(:(hello(;x=100,y=200) = begin end))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact func.args => []
     @fact func.body => quote end
@@ -2408,6 +2694,7 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
   context("Empty shorthand method with one typed kwarg") do
     func = parse_function(emit(parse_function(:(hello(;x::Integer=100) = begin end))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact func.args => []
     @fact func.body => quote end
@@ -2422,6 +2709,7 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
   context("Empty shorthand method with two typed kwargs") do
     func = parse_function(emit(parse_function(:(hello(;x::Integer=100, y::FloatingPoint=200.0) = begin end))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact func.args => []
     @fact func.body => quote end
@@ -2440,6 +2728,7 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
   context("Empty shorthand method with one union typed kwarg") do
     func = parse_function(emit(parse_function(:(hello(;x::Union(Integer, FloatingPoint)=100) = begin end))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact func.args => []
     @fact func.body => quote end
@@ -2454,6 +2743,7 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
   context("Empty shorthand method with one untyped varkwarg") do
     func = parse_function(emit(parse_function(:(hello(;x...) = begin end))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact func.args => []
     @fact func.body => quote end
@@ -2468,6 +2758,7 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
   context("Empty shorthand method with one typed varkwarg") do
     func = parse_function(emit(parse_function(:(hello(;x::Integer...) = begin end))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact func.args => []
     @fact func.body => quote end
@@ -2482,6 +2773,7 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
   context("Empty shorthand method with a mix of args and kwargs") do
     func = parse_function(emit(parse_function(:(hello(x,y::Integer,z=99,rest...;a::Integer=100,b=200,c...) = begin end))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact func.body => quote end
 
@@ -2518,9 +2810,40 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
     @fact isdefined(func.kwargs[3], :default) => false
   end
 
+  context("Empty shorthand method with namespace 1 deep") do
+    func = parse_function(emit(parse_function(:(MetaTestModule1.hello() = begin end))))
+    @fact func.name => :hello
+    @fact func.namespace => [:MetaTestModule1]
+    @fact isdefined(func, :types) => false
+    @fact isdefined(func, :kwargs) => false
+    @fact func.body => quote end
+    @fact func.args => []
+  end
+
+  context("Empty shorthand method with namespace 2 deep") do
+    func = parse_function(emit(parse_function(:(MetaTestModule1.MetaTestModule2.hello() = begin end))))
+    @fact func.name => :hello
+    @fact func.namespace => [:MetaTestModule1, :MetaTestModule2]
+    @fact isdefined(func, :types) => false
+    @fact isdefined(func, :kwargs) => false
+    @fact func.body => quote end
+    @fact func.args => []
+  end
+
+  context("Empty shorthand method with namespace 3 deep") do
+    func = parse_function(emit(parse_function(:(MetaTestModule1.MetaTestModule2.MetaTestModule3.hello() = begin end))))
+    @fact func.name => :hello
+    @fact func.namespace => [:MetaTestModule1, :MetaTestModule2, :MetaTestModule3]
+    @fact isdefined(func, :types) => false
+    @fact isdefined(func, :kwargs) => false
+    @fact func.body => quote end
+    @fact func.args => []
+  end
+
   context("Empty shorthand method with no type parameter") do
     func = parse_function(emit(parse_function(:(hello() = begin end))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -2530,6 +2853,7 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
   context("Empty shorthand method with one type parameter") do
     func = parse_function(emit(parse_function(:(hello{T}() = begin end))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact func.types => [:T]
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
@@ -2539,7 +2863,18 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
   context("Empty shorthand method with two type parameters") do
     func = parse_function(emit(parse_function(:(hello{T1, T2}() = begin end))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact func.types => [:T1, :T2]
+    @fact isdefined(func, :kwargs) => false
+    @fact func.body => quote end
+    @fact func.args => []
+  end
+
+  context("Empty shorthand method with namespace 3 deep and a type parameter") do
+    func = parse_function(emit(parse_function(:(MetaTestModule1.MetaTestModule2.MetaTestModule3.hello{T}() = begin end))))
+    @fact func.name => :hello
+    @fact func.namespace => [:MetaTestModule1, :MetaTestModule2, :MetaTestModule3]
+    @fact func.types => [:T]
     @fact isdefined(func, :kwargs) => false
     @fact func.body => quote end
     @fact func.args => []
@@ -2830,6 +3165,7 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
   context("Method with a numeric literal body") do
     func = parse_function(emit(parse_function(:(function hello() 10 end))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => Expr(:block, ANY_LINE_NUMBER, 10)
@@ -2839,6 +3175,7 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
   context("Shorthand method with a numeric literal body") do
     func = parse_function(emit(parse_function(:(hello() = 10))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => Expr(:block, 10)
@@ -2868,6 +3205,7 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
   context("Method with a symbol body") do
     func = parse_function(emit(parse_function(:(function hello() x end))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => Expr(:block, ANY_LINE_NUMBER, :x)
@@ -2877,6 +3215,7 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
   context("Shorthand method with a symbol body") do
     func = parse_function(emit(parse_function(:(hello() = x))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => Expr(:block, :x)
@@ -2906,6 +3245,7 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
   context("Method with a expression body") do
     func = parse_function(emit(parse_function(:(function hello() x + 10 end))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => Expr(:block, ANY_LINE_NUMBER, Expr(:call, :+, :x, 10))
@@ -2915,6 +3255,7 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
   context("Shorthand method with a expression body") do
     func = parse_function(emit(parse_function(:(hello() = x + 10))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => Expr(:call, :+, :x, 10)
@@ -2948,6 +3289,7 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
                               return y
                             end))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => Expr(:block,
@@ -2968,6 +3310,7 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
                               return y
                             end))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => Expr(:block,
@@ -2986,6 +3329,7 @@ facts("Meta.parse_function->Meta.emit->Meta.parse_function roundtrip tests") do
                                        y += some_func(z);
                                        return y)))))
     @fact func.name => :hello
+    @fact isdefined(func, :namespace) => false
     @fact isdefined(func, :types) => false
     @fact isdefined(func, :kwargs) => false
     @fact func.body => Expr(:block,
@@ -3322,6 +3666,39 @@ facts("Meta.emit->Meta.parse_function->Meta.emit roundtrip tests") do
     @fact func(10, 20, 30, b=99, foobar=100) => nothing
   end
 
+  context("Empty method with namespace 1 deep") do
+    pfunc = ParsedFunction(name=:hello,
+                           namespace=[:MetaTestModule1])
+    func = eval(emit(parse_function(emit(pfunc))))
+    @fact (func === MetaTestModule1.hello) => true
+    @fact isgeneric(func) => true
+    @fact func.env.name => :hello
+    @fact func.env.max_args => 0
+    @fact func() => nothing
+  end
+
+  context("Empty method with namespace 2 deep") do
+    pfunc = ParsedFunction(name=:hello,
+                           namespace=[:MetaTestModule1, :MetaTestModule2])
+    func = eval(emit(parse_function(emit(pfunc))))
+    @fact (func === MetaTestModule1.MetaTestModule2.hello) => true
+    @fact isgeneric(func) => true
+    @fact func.env.name => :hello
+    @fact func.env.max_args => 0
+    @fact func() => nothing
+  end
+
+  context("Empty method with namespace 3 deep") do
+    pfunc = ParsedFunction(name=:hello,
+                           namespace=[:MetaTestModule1, :MetaTestModule2, :MetaTestModule3])
+    func = eval(emit(parse_function(emit(pfunc))))
+    @fact (func === MetaTestModule1.MetaTestModule2.MetaTestModule3.hello) => true
+    @fact isgeneric(func) => true
+    @fact func.env.name => :hello
+    @fact func.env.max_args => 0
+    @fact func() => nothing
+  end
+
   context("Empty method with no type parameter") do
     pfunc = ParsedFunction(name=:hello23,
                            types=Symbol[])
@@ -3354,6 +3731,19 @@ facts("Meta.emit->Meta.parse_function->Meta.emit roundtrip tests") do
     @fact func.env.max_args => 2
     @fact func(10, 20) => nothing
   end
+
+  context("Empty method with namespace 3 deep and one type parameter") do
+    pfunc = ParsedFunction(name=:hello,
+                           types=[:T],
+                           namespace=[:MetaTestModule1, :MetaTestModule2, :MetaTestModule3])
+    func = eval(emit(parse_function(emit(pfunc))))
+    @fact (func === MetaTestModule1.MetaTestModule2.MetaTestModule3.hello) => true
+    @fact isgeneric(func) => true
+    @fact func.env.name => :hello
+    @fact func.env.max_args => 0
+    @fact func() => nothing
+  end
+
   #############################################################################
 
   context("Empty anonymous function with no args") do
@@ -3519,6 +3909,56 @@ facts("Meta.emit->Meta.parse_function->Meta.emit roundtrip tests") do
     func = eval(emit(parse_function(emit(pfunc))))
     @fact isgeneric(func) => false
     @fact func(100) => 9//11
+  end
+end
+
+###############################################################################
+###############################################################################
+
+facts("Meta.@commutative tests") do
+  context("@commutative method") do
+    @commutative function foo(s::String, i::Integer)
+      return "$s -> $i"
+    end
+
+    @fact length(methods(foo)) => 2
+    @fact foo("hello", 42) => "hello -> 42"
+    @fact foo(42, "hello") => "hello -> 42"
+  end
+
+  context("@commutative shorthand method") do
+    @commutative bar(s::String, i::Integer) = "$s -> $i"
+
+    @fact length(methods(bar)) => 2
+    @fact bar("hello", 42) => "hello -> 42"
+    @fact bar(42, "hello") => "hello -> 42"
+  end
+
+  context("@commutative method in namespace") do
+    @commutative function MetaTestModule1.baz(s::String, i::Integer)
+      return "$s -> $i"
+    end
+
+    @fact MetaTestModule1.baz("hello", 42) => "hello -> 42"
+    @fact MetaTestModule1.baz(42, "hello") => "hello -> 42"
+  end
+
+  context("@commutative shorthand method in namespace") do
+    @commutative MetaTestModule1.boo(s::String, i::Integer) = "$s -> $i"
+
+    @fact MetaTestModule1.boo("hello", 42) => "hello -> 42"
+    @fact MetaTestModule1.boo(42, "hello") => "hello -> 42"
+  end
+
+  context("@commutative method with an Any arg makes 3 methods") do
+    @commutative function hmmm(a::Any, s::String)
+      return "$s -> $a"
+    end
+
+    @fact length(methods(hmmm)) => 3
+    @fact hmmm("hello", "world") => "hello -> world"
+    @fact hmmm("hello", 42) => "hello -> 42"
+    @fact hmmm(42, "hello") => "hello -> 42"
   end
 end
 

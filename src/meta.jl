@@ -1,6 +1,6 @@
 module Meta
 
-export ParsedArgument, ParsedFunction, parse_function, emit
+export ParsedArgument, ParsedFunction, parse_function, emit, @commutative
 
 function parse_arg(s::Symbol)
   return s, :Any, false
@@ -18,7 +18,7 @@ function parse_arg(ex::Expr)
   end
 end
 
-immutable ParsedArgument
+type ParsedArgument
   name::Symbol
   typ::Union(Symbol, Expr)
   varargs::Bool
@@ -37,6 +37,7 @@ end
 
 type ParsedFunction
   name::Symbol
+  namespace::Array{Symbol, 1}
   types::Array{Symbol, 1}
   args::Array{ParsedArgument, 1}
   kwargs::Array{ParsedArgument, 1}
@@ -60,13 +61,38 @@ function parse_function_name!(out::ParsedFunction, s::Symbol)
   out.name = s
 end
 
-function parse_function_name!(out::ParsedFunction, ex::Expr)
-  if ex.head!=:curly
-    error("Expected curly")
+parse_namespace(s::Symbol) = [ s ]
+
+parse_namespace(q::QuoteNode) = [ q.value ]
+
+parse_name(q::QuoteNode) = q.value
+
+function parse_name(ex::Expr)
+  if ex.head!=:quote
+    error("Expected quote")
   end
-  out.name = ex.args[1]
-  # TODO: is more syntax possible here? <:?
-  out.types = Symbol[ex.args[2:]...]
+  return ex.args[1]
+end
+
+function parse_namespace(ex::Expr)
+  if ex.head!=:(.)
+    error("Expected .")
+  end
+
+  return vcat(parse_namespace(ex.args[1]), parse_namespace(ex.args[2]))
+end
+
+function parse_function_name!(out::ParsedFunction, ex::Expr)
+  if ex.head==:(.)
+    out.namespace = parse_namespace(ex.args[1])
+    out.name = parse_name(ex.args[2])
+  elseif ex.head==:curly
+    parse_function_name!(out, ex.args[1])
+    # TODO: is more syntax possible here? <:?
+    out.types = Symbol[ex.args[2:]...]
+  else
+    error("Expected . or curly")
+  end
 end
 
 function parse_function_args!(out::ParsedFunction, args::Array{Any,1 })
@@ -82,8 +108,8 @@ function flatten_nested_block(x::Any)
 end
 
 function flatten_nested_block(ex::Expr)
-  # TODO: is this copy necessary?
-  return flatten_nested_block_impl(copy(ex))
+  # TODO: is this deepcopy necessary?
+  return flatten_nested_block_impl(deepcopy(ex))
 end
 
 function flatten_nested_block_impl(s::Symbol)
@@ -148,9 +174,25 @@ function emit_args(func::ParsedFunction)
   end
 end
 
+make_quotenode(s::Symbol) = eval(Expr(:quote, Expr(:quote, s)))
+
+function emit_name(namespace::Array{Symbol,1}, name::Symbol)
+  if length(namespace)>0
+    return Expr(:(.), emit_name(namespace[1:end-1], namespace[end]), make_quotenode(name))
+  else
+    return name
+  end
+end
+
 function emit_name(func::ParsedFunction)
   if isdefined(func, :types)
-    return Expr(:curly, func.name, func.types...)
+    if isdefined(func, :namespace)
+      return Expr(:curly, emit_name(func.namespace, func.name), func.types...)
+    else
+      return Expr(:curly, func.name, func.types...)
+    end
+  elseif isdefined(func, :namespace)
+    return emit_name(func.namespace, func.name)
   else
     return func.name
   end
@@ -163,6 +205,49 @@ function emit(func::ParsedFunction)
   else
     # Anonymous function
     return Expr(:function, Expr(:tuple, emit_args(func.args)...), func.body)
+  end
+end
+
+macro commutative(ex::Expr)
+  # Parse the function
+  pfunc = Meta.parse_function(ex)
+
+  if (!isdefined(pfunc, :name) ||
+      length(pfunc.args) != 2 ||
+      pfunc.args[1].varargs || pfunc.args[2].varargs ||
+      isdefined(pfunc.args[1], :default) || isdefined(pfunc.args[2], :default) ||
+      (isdefined(pfunc, :kwargs) && length(pfunc.kwargs) != 0))
+    error("Expected a method of 2 simple arguments only")
+  end
+
+  if pfunc.args[1].typ == pfunc.args[2].typ
+    error("Arguments must be of different types")
+  end
+
+  # commutative so we can just swap the arguments
+  reverse!(pfunc.args)
+
+  if pfunc.args[1].typ == :Any || pfunc.args[2].typ == :Any
+    # If one of the arguments is nothing we'll get warning unless we
+    # define a method with symetric types first
+    pfunc2 = deepcopy(pfunc)
+    if pfunc2.args[1].typ == :Any
+      pfunc2.args[1].typ = pfunc2.args[2].typ
+    else
+      pfunc2.args[2].typ = pfunc2.args[1].typ
+    end
+    # produce three forms of the method
+    return esc(quote
+      $(emit(pfunc2))
+      $ex
+      $(emit(pfunc))
+    end)
+  else
+    # produce two forms of the method
+    return esc(quote
+      $ex
+      $(emit(pfunc))
+    end)
   end
 end
 
