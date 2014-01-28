@@ -210,7 +210,7 @@ end
 
 macro commutative(ex::Expr)
   # Parse the function
-  pfunc = Meta.parse_function(ex)
+  pfunc = parse_function(ex)
 
   if (!isdefined(pfunc, :name) ||
       length(pfunc.args) != 2 ||
