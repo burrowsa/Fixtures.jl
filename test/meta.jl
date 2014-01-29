@@ -1466,7 +1466,7 @@ facts("Meta.emit tests") do
 
   context("Empty method with one untyped arg") do
     pfunc = ParsedFunction(name=:hello2,
-                           args=[ParsedArgument(:x)])
+                           args=[ParsedArgument(name=:x)])
     func = eval(emit(pfunc))
     @fact isgeneric(func) => true
     @fact func.env.name => :hello2
@@ -1476,8 +1476,8 @@ facts("Meta.emit tests") do
 
   context("Empty method with two untyped args") do
     pfunc = ParsedFunction(name=:hello3,
-                           args=[ParsedArgument(:x),
-                                 ParsedArgument(:y)])
+                           args=[ParsedArgument(name=:x),
+                                 ParsedArgument(name=:y)])
     func = eval(emit(pfunc))
     @fact isgeneric(func) => true
     @fact func.env.name => :hello3
@@ -1487,7 +1487,7 @@ facts("Meta.emit tests") do
 
   context("Empty method with one typed arg") do
     pfunc = ParsedFunction(name=:hello4,
-                           args=[ParsedArgument(:(x::Integer))])
+                           args=[ParsedArgument(name=:x, typ=:Integer)])
     func = eval(emit(pfunc))
     @fact isgeneric(func) => true
     @fact func.env.name => :hello4
@@ -1497,8 +1497,8 @@ facts("Meta.emit tests") do
 
   context("Empty method with two typed args") do
     pfunc = ParsedFunction(name=:hello5,
-                           args=[ParsedArgument(:(x::Integer)),
-                                 ParsedArgument(:(y::Integer))])
+                           args=[ParsedArgument(name=:x, typ=:Integer),
+                                 ParsedArgument(name=:y, typ=:Integer)])
     func = eval(emit(pfunc))
     @fact isgeneric(func) => true
     @fact func.env.name => :hello5
@@ -3924,6 +3924,17 @@ facts("Meta.@commutative tests") do
     @fact length(methods(foo)) => 2
     @fact foo("hello", 42) => "hello -> 42"
     @fact foo(42, "hello") => "hello -> 42"
+  end
+
+  context("@commutative with wrong type of function") do
+    @fact_throws eval(:(@commutative function foo(s::String) end))
+    @fact_throws eval(:(@commutative function foo(s1::String, s2::String) end))
+    @fact_throws eval(:(@commutative function foo(s::String, i::Integer...) end))
+    @fact_throws eval(:(@commutative function foo(s::String, i::Integer=10) end))
+    @fact_throws eval(:(@commutative function foo(s1::String, s2::Integer, s3::FloatingPoint) end))
+    @fact_throws eval(:(@commutative function foo(s::String, i::Integer; special=false) end))
+    @fact_throws eval(:(@commutative function(s::String, i::Integer) end))
+    @fact_throws eval(:(@commutative (s::String, i::Integer) -> begin end))
   end
 
   context("@commutative shorthand method") do

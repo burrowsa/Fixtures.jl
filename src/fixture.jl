@@ -1,6 +1,8 @@
 export @fixture
 export yield_fixture
 
+using Base.Meta.isexpr
+
 function yield_fixture(args...)
   error("yield_fixture must be in the top level of scope within @fixture function")
 end
@@ -11,13 +13,7 @@ macro fixture(ex::Expr)
   local pfunc = Meta.parse_function(ex)
   pfunc.args = [EXTRA_ARG, pfunc.args...]
   if pfunc.body.head == :block
-    const i = findfirst(pfunc.body.args) do v
-      if isa(v, Expr) && v.head==:call && v.args[1]==:yield_fixture
-        true
-      else
-        false
-      end
-    end
+    const i = findfirst(v -> isexpr(v, :call) && v.args[1]==:yield_fixture, pfunc.body.args)
     if i>0
       # Copy the call so that we get any arguments
       const call_expr = copy(pfunc.body.args[i])

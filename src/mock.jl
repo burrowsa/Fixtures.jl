@@ -1,6 +1,6 @@
 export mock, calls, reset, call
 
-global _calls = Dict{Function, Array{(Tuple, Array{Any, 1}), 1}}()
+global _calls = Dict{Function, Vector{(Tuple, Vector)}}()
 
 function mock(;return_value::Any=nothing, side_effect::Union(Function, Nothing)=nothing)
   function impl(args::Any...; kwargs...)
