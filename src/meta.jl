@@ -3,7 +3,7 @@ module Meta
 using Base.Meta.isexpr
 using Base.Meta.quot
 
-export ParsedArgument, ParsedFunction, parse_function, emit, @commutative
+export ParsedArgument, ParsedFunction, emit, @commutative
 
 type ParsedArgument
   name::Symbol
@@ -67,13 +67,19 @@ type ParsedFunction
   end
 end
 
-function parse_function_name!(out::ParsedFunction, s::Symbol)
-  out.name = s
-end
-
 parse_namespace(s::Symbol) = [ s ]
 
 parse_namespace(q::QuoteNode) = [ q.value ]
+
+function parse_namespace(ex::Expr)
+  if ex.head!=:(.)
+    error("Expected .")
+  end
+
+  return vcat(parse_namespace(ex.args[1]), parse_namespace(ex.args[2]))
+end
+
+parse_function_name(s::Symbol) = { :name => s }
 
 parse_name(q::QuoteNode) = q.value
 
@@ -84,47 +90,33 @@ function parse_name(ex::Expr)
   return ex.args[1]
 end
 
-function parse_namespace(ex::Expr)
-  if ex.head!=:(.)
-    error("Expected .")
-  end
+parse_function_name(s::Symbol) = { :name => s }
 
-  return vcat(parse_namespace(ex.args[1]), parse_namespace(ex.args[2]))
-end
-
-function parse_function_name!(out::ParsedFunction, ex::Expr)
+function parse_function_name(ex::Expr)
   if isexpr(ex, :(.))
-    out.namespace = parse_namespace(ex.args[1])
-    out.name = parse_name(ex.args[2])
+    out = { :name => parse_name(ex.args[2]) }
+    out[:namespace] = parse_namespace(ex.args[1])
+    return out
   elseif isexpr(ex, :curly)
-    parse_function_name!(out, ex.args[1])
+    out = parse_function_name(ex.args[1])
     # TODO: is more syntax possible here? <:?
-    out.types = Symbol[ex.args[2:]...]
+    out[:types] = Symbol[ex.args[2:]...]
+    return out
   else
     error("Expected . or curly")
   end
 end
 
-function parse_function_args!(out::ParsedFunction, args::Vector)
-  out.args = map(ParsedArgument, args)
-end
+parse_args(args::Vector) = ParsedArgument[map(ParsedArgument, args)...]
 
-function parse_function_keyword_args!(out::ParsedFunction, args::Vector)
-  out.kwargs = map(ParsedArgument, args)
-end
-
-function flatten_nested_block(x::Any)
-  return Expr(:block, x)
-end
+flatten_nested_block(x::Any) = Expr(:block, x)
 
 function flatten_nested_block(ex::Expr)
   # TODO: is this deepcopy necessary?
   return flatten_nested_block_impl(deepcopy(ex))
 end
 
-function flatten_nested_block_impl(s::Symbol)
-  return s
-end
+flatten_nested_block_impl(s::Symbol) = s
 
 function flatten_nested_block_impl(ex::Expr)
   # TODO: Does this need to flatten more deeply?
@@ -139,31 +131,29 @@ function flatten_nested_block_impl(ex::Expr)
   end
 end
 
-function parse_function(ex::Expr)
-  const retval = ParsedFunction()
-
+function ParsedFunction(ex::Expr)
   if isexpr(ex, [:function, :(=)]) && isexpr(ex.args[1], :call)
-    parse_function_name!(retval, ex.args[1].args[1])
+    proto = parse_function_name(ex.args[1].args[1])
     if length(ex.args[1].args)>=2 && isexpr(ex.args[1].args[2], :parameters)
-      parse_function_args!(retval, ex.args[1].args[3:])
-      parse_function_keyword_args!(retval, ex.args[1].args[2].args)
+      proto[:args] = parse_args(ex.args[1].args[3:])
+      proto[:kwargs] = parse_args(ex.args[1].args[2].args)
     else
-      parse_function_args!(retval, ex.args[1].args[2:])
+      proto[:args] = parse_args(ex.args[1].args[2:])
     end
+    proto[:body] = flatten_nested_block(ex.args[end])
+    return ParsedFunction(;proto...)
   elseif isexpr(ex, :->) && (isa(ex.args[1], Symbol) || ex.args[1].head!=:tuple)
-    parse_function_args!(retval, Any[ex.args[1]])
+    return ParsedFunction(args=parse_args([ex.args[1]]),
+                          body=flatten_nested_block(ex.args[end]))
   elseif isexpr(ex, [:function, :->]) && isexpr(ex.args[1], :tuple)
-    parse_function_args!(retval, ex.args[1].args)
+    return ParsedFunction(args=parse_args(ex.args[1].args),
+                          body=flatten_nested_block(ex.args[end]))
   else
-    error("parse_function can only be applied to methods/functions/lambdas")
+    error("ParsedFunction can only be applied to methods/functions/lambdas")
   end
-
-  retval.body = flatten_nested_block(ex.args[end])
-
-  return retval
 end
 
-function emit_arg(arg::ParsedArgument)
+function emit(arg::ParsedArgument)
   local out::Expr = Expr(:(::), arg.name, arg.typ)
   if arg.varargs
     out = Expr(:(...), out)
@@ -174,13 +164,13 @@ function emit_arg(arg::ParsedArgument)
   return out
 end
 
-emit_args(args::Vector{ParsedArgument}) = map(emit_arg, args)
+emit(args::Vector{ParsedArgument}) = map(emit, args)
 
 function emit_args(func::ParsedFunction)
   if isdefined(func, :kwargs)
-    return [Expr(:parameters, emit_args(func.kwargs)...), emit_args(func.args)...]
+    return [Expr(:parameters, emit(func.kwargs)...), emit(func.args)...]
   else
-    return emit_args(func.args)
+    return emit(func.args)
   end
 end
 
@@ -195,32 +185,29 @@ function emit_name(namespace::Vector{Symbol}, name::Symbol)
 end
 
 function emit_name(func::ParsedFunction)
-  if isdefined(func, :types)
+  if !isdefined(func, :name)
+    return []
+  elseif isdefined(func, :types)
     if isdefined(func, :namespace)
-      return Expr(:curly, emit_name(func.namespace, func.name), func.types...)
+      return [Expr(:curly, emit_name(func.namespace, func.name), func.types...)]
     else
-      return Expr(:curly, func.name, func.types...)
+      return [Expr(:curly, func.name, func.types...)]
     end
   elseif isdefined(func, :namespace)
-    return emit_name(func.namespace, func.name)
+    return [emit_name(func.namespace, func.name)]
   else
-    return func.name
+    return [func.name]
   end
 end
 
 function emit(func::ParsedFunction)
-  if isdefined(func, :name)
-    # Method
-    return Expr(:function, Expr(:call, emit_name(func), emit_args(func)...), func.body)
-  else
-    # Anonymous function
-    return Expr(:function, Expr(:tuple, emit_args(func.args)...), func.body)
-  end
+  const head = isdefined(func, :name) ? :call : :tuple # :call for a method else :tuple
+  return Expr(:function, Expr(head, emit_name(func)..., emit_args(func)...), func.body)
 end
 
 macro commutative(ex::Expr)
   # Parse the function
-  pfunc = parse_function(ex)
+  pfunc = ParsedFunction(ex)
 
   if (!isdefined(pfunc, :name) ||
       length(pfunc.args) != 2 ||

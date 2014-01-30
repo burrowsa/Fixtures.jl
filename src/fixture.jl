@@ -10,7 +10,7 @@ end
 const EXTRA_ARG = Meta.ParsedArgument(:(ecbf47d557eb469c9fc755f8e07f11f7::Function))
 
 macro fixture(ex::Expr)
-  local pfunc = Meta.parse_function(ex)
+  local pfunc = Meta.ParsedFunction(ex)
   pfunc.args = [EXTRA_ARG, pfunc.args...]
   if pfunc.body.head == :block
     const i = findfirst(v -> isexpr(v, :call) && v.args[1]==:yield_fixture, pfunc.body.args)
