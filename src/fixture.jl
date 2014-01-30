@@ -1,16 +1,16 @@
 export @fixture
 export yield_fixture
 
-using Base.Meta.isexpr
+using Base.Meta
 
 function yield_fixture(args...)
   error("yield_fixture must be in the top level of scope within @fixture function")
 end
 
-const EXTRA_ARG = Meta.ParsedArgument(:(ecbf47d557eb469c9fc755f8e07f11f7::Function))
+const EXTRA_ARG = MetaTools.ParsedArgument(:(ecbf47d557eb469c9fc755f8e07f11f7::Function))
 
 macro fixture(ex::Expr)
-  local pfunc = Meta.ParsedFunction(ex)
+  local pfunc = MetaTools.ParsedFunction(ex)
   pfunc.args = [EXTRA_ARG, pfunc.args...]
   if pfunc.body.head == :block
     const i = findfirst(v -> isexpr(v, :call) && v.args[1]==:yield_fixture, pfunc.body.args)
@@ -35,5 +35,5 @@ macro fixture(ex::Expr)
     error("Expected a :block got a $(pfunc.body.head)")
   end
 
-  return esc(Meta.emit(pfunc))
+  return esc(MetaTools.emit(pfunc))
 end

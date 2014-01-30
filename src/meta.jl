@@ -1,7 +1,6 @@
-module Meta
+module MetaTools
 
-using Base.Meta.isexpr
-using Base.Meta.quot
+using Base.Meta
 
 export ParsedArgument, ParsedFunction, emit, @commutative
 

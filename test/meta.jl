@@ -1,7 +1,7 @@
 module MetaTests
 
 using Fixtures
-using Fixtures.Meta
+using Fixtures.MetaTools
 using FactCheck
 
 const ANY_LINE_NUMBER = redescribe(anything_of_type(LineNumberNode) | (anything_of_type(Expr) & Matcher(v->v.head==:line, "expr.head==:line")), "Any line number")
@@ -24,7 +24,7 @@ module MetaTestModule1
 end
 
 
-facts("Meta.ParsedFunction tests") do
+facts("MetaTools.ParsedFunction tests") do
   context("Empty method with no args") do
     func = ParsedFunction(:(function hello() end))
     @fact func.name => :hello
@@ -1454,7 +1454,7 @@ end
 ###############################################################################
 ###############################################################################
 
-facts("Meta.emit tests") do
+facts("MetaTools.emit tests") do
   context("Empty method with no args") do
     pfunc = ParsedFunction(name=:hello1)
     func = eval(emit(pfunc))
@@ -1969,7 +1969,7 @@ end
 ###############################################################################
 ###############################################################################
 
-facts("Meta.ParsedFunction->Meta.emit->Meta.ParsedFunction roundtrip tests") do
+facts("MetaTools.ParsedFunction->MetaTools.emit->MetaTools.ParsedFunction roundtrip tests") do
   context("Empty method with no args") do
     func = ParsedFunction(emit(ParsedFunction(:(function hello() end))))
     @fact func.name => :hello
@@ -3399,7 +3399,7 @@ end
 ###############################################################################
 ###############################################################################
 
-facts("Meta.emit->Meta.ParsedFunction->Meta.emit roundtrip tests") do
+facts("MetaTools.emit->MetaTools.ParsedFunction->MetaTools.emit roundtrip tests") do
   context("Empty method with no args") do
     pfunc = ParsedFunction(name=:hello1)
     func = eval(emit(ParsedFunction(emit(pfunc))))
@@ -3915,7 +3915,7 @@ end
 ###############################################################################
 ###############################################################################
 
-facts("Meta.@commutative tests") do
+facts("MetaTools.@commutative tests") do
   context("@commutative method") do
     @commutative function foo(s::String, i::Integer)
       return "$s -> $i"

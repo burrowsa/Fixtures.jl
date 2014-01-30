@@ -5,8 +5,8 @@ immutable Matcher
   description::String
 end
 
-@Meta.commutative Base.isequal(matcher::Matcher, value::WeakRef) = matcher.predicate(value)
-@Meta.commutative Base.isequal(matcher::Matcher, value::Any) = matcher.predicate(value)
+@MetaTools.commutative Base.isequal(matcher::Matcher, value::WeakRef) = matcher.predicate(value)
+@MetaTools.commutative Base.isequal(matcher::Matcher, value::Any) = matcher.predicate(value)
 Base.isequal(lhs::Matcher, rhs::Matcher) = error("Can not compare 2 Matchers")
 
 Base.show(io::IO, matcher::Matcher) = print(io, matcher.description)
