@@ -70,6 +70,10 @@ facts("Matchers tests") do
     end
   end
 
+  context("Can't compare 2 Matchers") do
+    @fact_throws ANYTHING==ANYTHING
+  end
+
   const ANYTHING_LESS_THAN_SEVEN = Matcher(x->x<7, "Anything less than seven")
   const ANY_INTEGER = anything_of_type(Integer)
 
