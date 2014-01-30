@@ -1,5 +1,5 @@
 module Fixtures
-include("meta.jl")
+include("metatools.jl")
 include("fixture.jl")
 include("registered_fixtures.jl")
 include("fact_check_support.jl")

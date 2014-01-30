@@ -1,4 +1,4 @@
-my_tests = ["test/meta.jl",
+my_tests = ["test/metatools.jl",
             "test/fixture.jl",
             "test/registered_fixtures.jl",
             "test/fact_check_support.jl",
