@@ -16,11 +16,11 @@ type ParsedArgument
       setfield(out, kwname, kwvalue)
     end
 
-    const kwdict = Dict(collect(zip(kwargs...))...)
-    if !(:varargs in keys(kwdict))
+    const kwdict = {k=>v for (k,v) in kwargs} # Julia 0.3 has a nicer way to do this
+    if !haskey(kwdict, :varargs)
       out.varargs = false
     end
-    if !(:typ in keys(kwdict))
+    if !haskey(kwdict, :typ)
       out.typ = :Any
     end
     return out
@@ -55,10 +55,12 @@ type ParsedFunction
     for (kwname, kwvalue) in kwargs
       setfield(out, kwname, kwvalue)
     end
-    if !isdefined(out, :args)
+
+    const kwdict = {k=>v for (k,v) in kwargs} # Julia 0.3 has a nicer way to do this
+    if !haskey(kwdict, :args)
       out.args = []
     end
-    if !isdefined(out, :body)
+    if !haskey(kwdict, :body)
       out.body = quote end
     end
     return out
