@@ -1,5 +1,7 @@
 export ANYTHING, anything_of_type, anything_in, anything_containing, Matcher, redescribe
 
+import MetaTools
+
 immutable Matcher
   predicate::Function
   description::String

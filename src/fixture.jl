@@ -2,6 +2,7 @@ export @fixture
 export yield_fixture
 
 using Base.Meta
+import MetaTools
 
 function yield_fixture(args...)
   error("yield_fixture must be in the top level of scope within @fixture function")
