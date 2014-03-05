@@ -40,7 +40,7 @@ module TestModuleTwo
     next::List
     List(v::Any) = new(v)
     List(v::Any, nxt::List) = new(v, nxt)
-    List{T}(vs::Vector{T}) = length(vs) > 1 ? List(vs[1], List(vs[2:])) : List(vs[1])
+    List{T}(vs::Vector{T}) = length(vs) > 1 ? List(vs[1], List(vs[2:end])) : List(vs[1])
   end
 
   lst = List([40,30,20,10])

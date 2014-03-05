@@ -4,6 +4,9 @@ using Fixtures
 using FactCheck
 
 
+const JULIA_0_2 = (VERSION == v"0.2.0")
+
+
 facts("Matchers tests") do
   for (value, matcher, expected) in [
                 (10, ANYTHING, true),
@@ -28,8 +31,8 @@ facts("Matchers tests") do
                 (10, anything_in((11, "19", 36.0)), false),
                 (10, anything_in(["10", 19, 36]), false),
                 (10, anything_in(("10", 19, 36)), false),
-                (10, anything_in([10.0, 19, 36]), false),
-                (10, anything_in((10.0, 19, 36)), false),
+                (10, anything_in([10.0, 19, 36]), !JULIA_0_2),
+                (10, anything_in((10.0, 19, 36)), !JULIA_0_2),
                 (10, anything_in([(10,), 19, 36]), false),
                 (10, anything_in(((10,), 19, 36)), false),
                 (10, anything_in([[10,], 19, 36]), true),
@@ -51,8 +54,8 @@ facts("Matchers tests") do
                 ((11, "19", 36.0), anything_containing(10), false),
                 (["10", 19, 36], anything_containing(10), false),
                 (("10", 19, 36), anything_containing(10), false),
-                ([10.0, 19, 36], anything_containing(10), false),
-                ((10.0, 19, 36), anything_containing(10), false),
+                ([10.0, 19, 36], anything_containing(10), !JULIA_0_2),
+                ((10.0, 19, 36), anything_containing(10), !JULIA_0_2),
                 ([(10,), 19, 36], anything_containing(10), false),
                 (((10,), 19, 36), anything_containing(10), false),
                 ([[10,], 19, 36], anything_containing(10), true),

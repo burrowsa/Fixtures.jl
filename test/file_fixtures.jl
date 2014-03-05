@@ -42,7 +42,7 @@ facts("FileFixtures tests") do
   context("temporary filename with extension") do
     temp_filename(extension="csv") do filename
       @fact filename[1:TEMPDIR_LEN] => TEMPDIR
-      @fact filename[end-2:] => "csv"
+      @fact filename[end-2:end] => "csv"
       @fact ispath(filename) => false
       touch(filename)
       @fact isfile(filename) => true

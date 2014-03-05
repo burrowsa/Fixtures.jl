@@ -12,7 +12,7 @@ end
 fixtures = Dict{Symbol, (NamedFixture...)}()
 
 get_name(nfs::(NamedFixture...)) = [nf.name for nf in nfs]
-names() = Set([[ get_name(x) for x in values(Fixtures.fixtures) ]...]...)
+names() = Set([ get_name(x) for x in values(Fixtures.fixtures) ])
 
 function add_fixture(scope::Symbol, name::SymbolOrNothing, fixture::Function, args...; kwargs...)
   if name!=nothing && name in names()
