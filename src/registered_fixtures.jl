@@ -5,13 +5,13 @@ SymbolOrNothing = Union(Symbol, Nothing)
 immutable NamedFixture
   name::SymbolOrNothing
   fn::Function
-  args::(Any...)
+  args::Any
   kwargs::Vector
 end
 
-fixtures = Dict{Symbol, (NamedFixture...)}()
+fixtures = Dict{Symbol, NamedFixture}()
 
-get_name(nfs::(NamedFixture...)) = [nf.name for nf in nfs]
+get_name(nfs::NamedFixture) = [nf.name for nf in nfs]
 names() = Set([ get_name(x) for x in values(Fixtures.fixtures) ])
 
 function add_fixture(scope::Symbol, name::SymbolOrNothing, fixture::Function, args...; kwargs...)
@@ -24,7 +24,7 @@ function add_fixture(scope::Symbol, name::SymbolOrNothing, fixture::Function, ar
   if haskey(fixtures, scope)
     fixtures[scope] = tuple(fixtures[scope]...,  nf)
   else
-    fixtures[scope] = (nf,)
+    fixtures[scope] = nf
   end
   return
 end
@@ -45,24 +45,32 @@ list_map(args...) = [ map(args...)... ]
 
 @fixture function apply_fixtures(scope::Symbol; fixture_values::Bool=false)
   # Convert all the fixtures to tasks
+
   const fv = Dict{Symbol, Any}()
-  const tsks = list_map(get(fixtures, scope, ())) do nf::NamedFixture
-    if fixture_values && nf.name!=nothing
-      return Task() do
-        nf.fn(nf.args..., nf.kwargs...) do values::Any...
-          if length(values)==0
-            fv[nf.name] = nothing
-          elseif length(values)==1
-            fv[nf.name] = values[1]
-          else
-            fv[nf.name] = values
+
+  temp = get(fixtures, scope, ())
+
+  if temp != ()
+    const tsks = list_map((temp,)) do nf
+      if fixture_values && nf.name!=nothing
+        return Task() do
+          nf.fn(nf.args..., nf.kwargs...) do values::Any...
+            if length(values)==0
+              fv[nf.name] = nothing
+            elseif length(values)==1
+              fv[nf.name] = values[1]
+            else
+              fv[nf.name] = values
+            end
+            produce()
           end
-          produce()
         end
+      else
+        return Task(() -> nf.fn(produce, nf.args..., nf.kwargs...))
       end
-    else
-      return Task(() -> nf.fn(produce, nf.args..., nf.kwargs...))
     end
+  else
+    return
   end
 
   # fixtures can be defined within in nested scopes, create a new scope
