@@ -25,11 +25,14 @@ patch(fn::Function, obj::Any, name::Symbol, new::Any) = patchimpl(fn, Core, :($o
 
 patch(fn::Function, mod::Module, name::Symbol, new::Any) = patchimpl(fn, mod, name, new)
 
-@fixture function patchimpl(mod::Module, name::Union(Expr,Symbol), new::Any)
+function patchimpl(fn::Function, mod::Module, name::Union(Expr,Symbol), new::Any)
   const old = mod.eval(name)
   mod.eval(:($name = $new))
-  yield_fixture()
-  mod.eval(:($name = $old))
+  try
+    fn()
+  finally
+    mod.eval(:($name = $old))
+  end
 end
 
 macro patch(expr::Expr, name::Symbol, new::Any)

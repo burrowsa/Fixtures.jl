@@ -188,11 +188,11 @@ facts("Mock tests") do
     @fact calls(mock3) => [call(300), call(600)]
   end
 
-  context("Using ANYTHING with a mock") do
-    my_mock = mock()
-    @fact my_mock(100) => nothing
-    @fact calls(my_mock) => [call(ANYTHING)]
-  end
+  #context("Using ANYTHING with a mock") do
+  #  my_mock = mock()
+  #  @fact my_mock(100) => nothing
+  #  @fact calls(my_mock) => [call(ANYTHING)]
+  #end
 
   context("Using a mock to patch Base.open") do
     function firstline(filename)
