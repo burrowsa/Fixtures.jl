@@ -2,9 +2,10 @@ module RegisteredFixturesTests
 
 using Fixtures
 using FactCheck
+using Debug
 
 
-facts("Registered Fixtures tests") do
+@debug facts("Registered Fixtures tests") do
   context("test add_fixture adds to fixtures") do
     patch(Fixtures, :fixtures, Dict()) do
       function somefunction(fn::Function)
@@ -13,9 +14,9 @@ facts("Registered Fixtures tests") do
 
       @fact Fixtures.fixtures => Dict()
       add_fixture(:somecontext, somefunction)
-      @fact length(Fixtures.fixtures[:somecontext])=>1
-      @fact Fixtures.fixtures[:somecontext][1].name => nothing
-      @fact Fixtures.fixtures[:somecontext][1].fn => anything_of_type(Function)
+      @fact length(Fixtures.fixtures)=>1
+      @fact Fixtures.fixtures[:somecontext].name => nothing
+      @fact Fixtures.fixtures[:somecontext].fn => anything_of_type(Function)
     end
   end
 
