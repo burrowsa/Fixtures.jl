@@ -1,6 +1,6 @@
 module PatchTests
 
-using Fixtures
+using Fixtures.Mocking
 using FactCheck
 
 # This module has an example of some kinds of thing we can patch and is used by the tests
