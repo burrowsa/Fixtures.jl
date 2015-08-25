@@ -10,5 +10,5 @@ notifications:
 sudo: false
 script:
  - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
- - julia --check-bounds=yes --color=yes -e 'Pkg.checkout("MetaTools");
+ - julia --check-bounds=yes --color=yes -e 'Pkg.add("MetaTools"); Pkg.checkout("MetaTools");
             Pkg.clone(pwd()); Pkg.build("Fixtures"); Pkg.test("Fixtures"; coverage=true)'
