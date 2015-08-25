@@ -10,12 +10,19 @@ end
 
 @MetaTools.commutative Base.isequal(matcher::Matcher, value::WeakRef) = matcher.predicate(value)
 @MetaTools.commutative Base.isequal(matcher::Matcher, value::Any) = matcher.predicate(value)
+Base.isequal(lhs::Matcher, rhs::Matcher) = error("Can not compare 2 Matchers")
 
-function ==(matcher::Matcher, value::Any)
+@MetaTools.commutative function ==(matcher::Matcher, value::WeakRef)
     matcher.predicate(value)
 end
 
-Base.isequal(lhs::Matcher, rhs::Matcher) = error("Can not compare 2 Matchers")
+@MetaTools.commutative function ==(matcher::Matcher, value::Any)
+    if isa(value, Matcher)
+         error("Can not compare 2 Matchers")
+    else
+        matcher.predicate(value)
+    end
+end
 
 Base.show(io::IO, matcher::Matcher) = print(io, matcher.description)
 

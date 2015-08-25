@@ -2,10 +2,9 @@ module RegisteredFixturesTests
 
 using Fixtures
 using FactCheck
-using Debug
 
 
-@debug facts("Registered Fixtures tests") do
+facts("Registered Fixtures tests") do
   context("test add_fixture adds to fixtures") do
     patch(Fixtures, :fixtures, Dict()) do
       function somefunction(fn::Function)
