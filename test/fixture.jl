@@ -1571,7 +1571,8 @@ facts("@Fixture tests") do
 
   context("method_variadic_b") do
     res = method_variadic_b(x=10,y=20,z=30) do
-      @fact state=>"method_variadic_b_Any[(:x,10),(:y,20),(:z,30)]"
+      kwargs = Any[(:x,10),(:y,20),(:z,30)]
+      @fact state=>"method_variadic_b_$kwargs"
       1234
     end
     @fact res=>1234
@@ -1580,7 +1581,9 @@ facts("@Fixture tests") do
 
   context("method_variadic_c") do
     res = method_variadic_c(10,20,30,x=10,y=20,z=30) do
-      @fact state=>"method_variadic_c_(10,20,30)_Any[(:x,10),(:y,20),(:z,30)]"
+      args = (10, 20 , 30)
+      kwargs = Any[(:x,10),(:y,20),(:z,30)]
+      @fact state=>"method_variadic_c_$(args)_$kwargs"
       1234
     end
     @fact res=>1234
@@ -1598,7 +1601,8 @@ facts("@Fixture tests") do
 
   context("method_variadic_e") do
     res = method_variadic_e(x=10,y=20,z=30) do
-      @fact state=>"method_variadic_e_10_Any[(:y,20),(:z,30)]"
+      kwargs = Any[(:y,20),(:z,30)]
+      @fact state=>"method_variadic_e_10_$kwargs"
       1234
     end
     @fact res=>1234
@@ -1607,7 +1611,8 @@ facts("@Fixture tests") do
 
   context("method_variadic_f") do
     res = method_variadic_f(10,20,30,x=10,y=20,z=30) do
-      @fact state=>"method_variadic_f_10_(20,30)_20_Any[(:x,10),(:z,30)]"
+      kwargs = Any[(:x,10),(:z,30)]
+      @fact state=>"method_variadic_f_10_(20,30)_20_$kwargs"
       1234
     end
     @fact res=>1234
@@ -1625,7 +1630,8 @@ facts("@Fixture tests") do
 
   context("method_variadic_h") do
     res = method_variadic_h(10,20,30,x=10,y=20,z=30) do
-      @fact state=>"method_variadic_h_(10,20,30)_Any[(:x,10),(:y,20),(:z,30)]"
+      kwargs = Any[(:x,10),(:y,20),(:z,30)]
+      @fact state=>"method_variadic_h_(10,20,30)_$kwargs"
       1234
     end
     @fact res=>1234
@@ -1643,7 +1649,8 @@ facts("@Fixture tests") do
 
   context("method_variadic_j") do
     res = method_variadic_j(x=10,y=20,z=30) do
-      @fact state=>"method_variadic_j_10_Any[(:y,20),(:z,30)]"
+      kwargs = Any[(:y,20),(:z,30)]
+      @fact state=>"method_variadic_j_10_$kwargs"
       1234
     end
     @fact res=>1234
@@ -1652,7 +1659,8 @@ facts("@Fixture tests") do
 
   context("method_variadic_k") do
     res = method_variadic_k(10,20,30,x=10,y=20,z=30) do
-      @fact state=>"method_variadic_k_10_(20,30)_20_Any[(:x,10),(:z,30)]"
+      kwargs = Any[(:x,10),(:z,30)]
+      @fact state=>"method_variadic_k_10_(20,30)_20_$kwargs"
       1234
     end
     @fact res=>1234
