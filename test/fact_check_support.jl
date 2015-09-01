@@ -37,6 +37,12 @@ facts("FactCheck support tests", using_fixtures) do
     @fact x => 100
   end
 
+  @fact x --> 0
+
+  context(using_fixtures) do
+    @fact x --> 100
+  end
+
   @fact x => 0
 
   add_fixture(:context, :some_name, fixture_that_produces_ten)
@@ -50,6 +56,10 @@ end
 add_fixture(:facts, :some_name, fixture_that_produces_ten)
 
 facts("Facts example with fixture_values=true", using_fixtures, fixture_values=true) do values
+  @fact values[:some_name] => 10
+end
+
+facts(using_fixtures, fixture_values=true) do values
   @fact values[:some_name] => 10
 end
 
