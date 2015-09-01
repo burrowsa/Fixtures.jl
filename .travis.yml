@@ -12,3 +12,5 @@ script:
  - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
  - julia --check-bounds=yes --color=yes -e 'Pkg.add("MetaTools"); Pkg.checkout("MetaTools");
             Pkg.clone(pwd()); Pkg.build("Fixtures"); Pkg.test("Fixtures"; coverage=true)'
+after_success:
+- julia -e 'cd(Pkg.dir("MyPkg")); Pkg.add("Coverage"); using Coverage; Codecov.submit(process_folder())'
