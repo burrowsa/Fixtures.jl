@@ -2,7 +2,7 @@
 
 Fixtures.jl provides fixtures, mocks, matchers and patching to improve your test life with Julia.
 
-[![Build Status](https://travis-ci.org/burrowsa/Fixtures.jl.png?branch=master)](https://travis-ci.org/burrowsa/Fixtures.jl)
+[![Build Status](https://travis-ci.org/burrowsa/Fixtures.jl.png?branch=master)](https://travis-ci.org/burrowsa/Fixtures.jl)[![codecov.io](http://codecov.io/github/invenia/Fixtures.jl/coverage.svg?branch=master)](http://codecov.io/github/invenia/Fixtures.jl?branch=master)
 
 ## An introduction to fixtures in Julia##
 
