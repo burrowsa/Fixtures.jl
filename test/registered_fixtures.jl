@@ -14,8 +14,8 @@ facts("Registered Fixtures tests") do
       @fact Fixtures.fixtures => Dict()
       add_fixture(:somecontext, somefunction)
       @fact length(Fixtures.fixtures)=>1
-      @fact Fixtures.fixtures[:somecontext].name => nothing
-      @fact Fixtures.fixtures[:somecontext].fn => anything_of_type(Function)
+      @fact Fixtures.fixtures[:somecontext][1].name => nothing
+      @fact Fixtures.fixtures[:somecontext][1].fn => anything_of_type(Function)
     end
   end
 
