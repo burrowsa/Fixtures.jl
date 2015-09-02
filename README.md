@@ -262,6 +262,34 @@ You can use `patch()` as above or you can use it with `add_fixture()` and `apply
         @Test.test firstline("foobar.txt") == "Hello Julia"
     end
     
+
+You can also have multiple patches passed in as an array.
+
+```
+function firstline(filename)
+    foo = open(filename)
+    bar = close(filename)
+    return foo, bar
+end
+
+function fake_open(filename)
+    return "hello,"
+end
+
+function fake_close(filename)
+    return "world"
+end
+
+patchers = [
+        Patcher(Base, :open, fake_open),
+        Patcher(Base, :close, fake_close),
+    ]
+
+patch(patchers) do
+    @Test.test firstline("foobar.txt") == ("hello,", "world")
+end
+```
+
 > **Note:** Due to a current [issue](https://github.com/JuliaLang/julia/issues/265) in Julia your ability to patch a function may be limited if the code calling that function has already been called.
 
 ## Mocks ##

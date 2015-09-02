@@ -473,4 +473,127 @@ facts("Broken stuff") do
   end
 end
 
+facts("Multiple patches") do
+  context("Trying to do multiple pathces") do
+
+    testmethod(x) = 200
+    testmethod(x,y) = 400
+
+    patchers = [
+        Patcher(TestModuleTwo, :test2variable, 100),
+        Patcher(TestModuleOne, :test1variable, 100),
+        Patcher(TestModuleTwo, :test1variable, 100),
+        Patcher(TestModuleOne, :test1lambda, x->200),
+        Patcher(TestModuleTwo, :test2function, x->200),
+        Patcher(TestModuleOne, :test1function, x->200),
+        Patcher(TestModuleOne, :test1nonconstmethod, x->200),
+        Patcher(TestModuleTwo, :test2constmethod, x->200),
+        Patcher(TestModuleTwo, :test2lambda, testmethod),
+        Patcher(TestModuleTwo, :test1lambda, testmethod),
+        Patcher(TestModuleTwo, :test1nonconstmethod, testmethod),
+        Patcher(TestModuleOne, :test1constmethod, testmethod),
+        Patcher(TestModuleTwo, :test2nonconstmethod, 200),
+        Patcher(TestModuleTwo.nestedmodule, :value, 4000),
+        Patcher(TestModuleTwo.nestedmodule, :func, ()->1234),
+        Patcher(TestModuleTwo.lst, :value, 101),
+        Patcher(TestModuleTwo.lst.next, :value, 102),
+        Patcher(TestModuleTwo.lst.next.next, :value, 103),
+        Patcher(TestModuleTwo.lst.next.next.next, :value, 104),
+        Patcher(mylist, :value, 101),
+        Patcher(mylist.next, :value, 102),
+        Patcher(mylist.next.next, :value, 103),
+        Patcher(mylist.next.next.next, :value, 104),
+      ]
+
+    @fact TestModuleOne.test1variable => 7
+    @fact TestModuleOne.test1constmethod(1) => 8
+    @fact TestModuleOne.test1constmethod(1,10) => 18
+    @fact TestModuleOne.test1nonconstmethod(1) => 8
+    @fact TestModuleOne.test1nonconstmethod(1,10) => 18
+    @fact TestModuleOne.test1function(1) => 8
+    @fact TestModuleOne.test1lambda(1) => 8
+    @fact TestModuleTwo.test2variable => 7
+    @fact TestModuleTwo.test2constmethod(1) => 8
+    @fact TestModuleTwo.test2constmethod(1,10) => 18
+    @fact TestModuleTwo.test2nonconstmethod(1) => 8
+    @fact TestModuleTwo.test2nonconstmethod(1,10) => 18
+    @fact TestModuleTwo.test2function(1) => 8
+    @fact TestModuleTwo.test2lambda(1) => 8
+    @fact TestModuleTwo.nestedmodule.value => 12
+    @fact TestModuleTwo.nestedmodule.func() => 200
+    @fact TestModuleTwo.lst.value => 40
+    @fact TestModuleTwo.lst.next.value => 30
+    @fact TestModuleTwo.lst.next.next.value => 20
+    @fact TestModuleTwo.lst.next.next.next.value => 10
+    @fact typeof(TestModuleTwo.List(100)) => TestModuleTwo.List
+    @fact typeof(TestModuleTwo.List(100, TestModuleTwo.List(200))) => TestModuleTwo.List
+    @fact typeof(TestModuleTwo.List([1, 2, 3])) => TestModuleTwo.List
+    @fact_throws TestModuleTwo.List(1,2,3)
+    @fact mylist.value => 1
+    @fact mylist.next.value => 2
+    @fact mylist.next.next.value => 3
+    @fact mylist.next.next.next.value => 4
+
+    random_number() = rand(1:1000)
+
+    patch(patchers) do
+      @fact TestModuleTwo.test2variable => 100
+      @fact TestModuleTwo.test2function(1) => 200
+      @fact TestModuleTwo.test1function(1) => 200
+      @fact TestModuleTwo.test1variable => 100 # This is all we have acheived
+      @fact TestModuleTwo.test2constmethod(random_number()) => 200
+      @fact_throws TestModuleTwo.test2constmethod(random_number(),random_number())
+      @fact TestModuleTwo.test2lambda(random_number()) => 200
+      @fact TestModuleTwo.test2lambda(random_number(),random_number()) => 400
+      @fact TestModuleTwo.test1lambda(random_number()) => 200
+      @fact TestModuleTwo.test1lambda(random_number(),random_number()) => 400
+      @fact TestModuleTwo.test1nonconstmethod(random_number()) => 200
+      @fact TestModuleTwo.test1nonconstmethod(random_number(),random_number()) => 400
+      @fact TestModuleTwo.test1constmethod(random_number()) => 200
+      @fact TestModuleTwo.test1constmethod(random_number(),random_number()) => 400
+      @fact TestModuleTwo.test2nonconstmethod => 200
+      @fact TestModuleTwo.nestedmodule.value => 4000
+      @fact TestModuleTwo.nestedmodule.func() => 1234
+      @fact TestModuleTwo.lst.value => 101
+      @fact TestModuleTwo.lst.next.value => 102
+      @fact TestModuleTwo.lst.next.next.value => 103
+      @fact TestModuleTwo.lst.next.next.next.value => 104
+      @fact mylist.value => 101
+      @fact mylist.next.value => 102
+      @fact mylist.next.next.value => 103
+      @fact mylist.next.next.next.value => 104
+    end
+
+    @fact TestModuleOne.test1variable => 7
+    @fact TestModuleOne.test1constmethod(1) => 8
+    @fact TestModuleOne.test1constmethod(1,10) => 18
+    @fact TestModuleOne.test1nonconstmethod(1) => 8
+    @fact TestModuleOne.test1nonconstmethod(1,10) => 18
+    @fact TestModuleOne.test1function(1) => 8
+    @fact TestModuleOne.test1lambda(1) => 8
+    @fact TestModuleTwo.test2variable => 7
+    @fact TestModuleTwo.test2constmethod(1) => 8
+    @fact TestModuleTwo.test2constmethod(1,10) => 18
+    @fact TestModuleTwo.test2nonconstmethod(1) => 8
+    @fact TestModuleTwo.test2nonconstmethod(1,10) => 18
+    @fact TestModuleTwo.test2function(1) => 8
+    @fact TestModuleTwo.test2lambda(1) => 8
+    @fact TestModuleTwo.nestedmodule.value => 12
+    @fact TestModuleTwo.nestedmodule.func() => 200
+    @fact TestModuleTwo.lst.value => 40
+    @fact TestModuleTwo.lst.next.value => 30
+    @fact TestModuleTwo.lst.next.next.value => 20
+    @fact TestModuleTwo.lst.next.next.next.value => 10
+    @fact typeof(TestModuleTwo.List(100)) => TestModuleTwo.List
+    @fact typeof(TestModuleTwo.List(100, TestModuleTwo.List(200))) => TestModuleTwo.List
+    @fact typeof(TestModuleTwo.List([1, 2, 3])) => TestModuleTwo.List
+    @fact_throws TestModuleTwo.List(1,2,3)
+    @fact mylist.value => 1
+    @fact mylist.next.value => 2
+    @fact mylist.next.next.value => 3
+    @fact mylist.next.next.next.value => 4
+
+  end
+end
+
 end

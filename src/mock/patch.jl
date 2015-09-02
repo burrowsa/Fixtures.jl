@@ -1,5 +1,24 @@
-export patch, @patch
+export patch, @patch, Patcher
 
+type Patcher
+  mod::Any
+  name::Union(Expr,Symbol)
+  new::Any
+
+  Patcher(mod::Any, name::Symbol, new::Any) = new(mod, name, new)
+end
+
+function patch(fn::Function, patchers::Array{Patcher}; i=1)
+
+  if i > length(patchers)
+    fn()
+  else
+    patch(patchers[i].mod, patchers[i].name, patchers[i].new) do
+      patch(fn, patchers, i=i+1)
+    end
+  end
+
+end
 
 function patch(fn::Function, mod::Module, name::Symbol, new::Function)
   const old = mod.eval(name)
@@ -12,12 +31,25 @@ function patch(fn::Function, mod::Module, name::Symbol, new::Function)
         end
       end
     else
-      patch(old, :env, new.env) do
-        return patch(fn, old, :fptr, new.fptr)
-      end
+      patchimp(fn, mod, name, new)
     end
   else
     return patchimpl(fn, mod, name, new)
+  end
+end
+
+
+function patchimp(fn::Function, mod::Module, name::Symbol, new::Function)
+  old = mod.eval(name)
+  oldenv = old.env
+  oldfptr = old.fptr
+  old.env = new.env
+  old.fptr = new.fptr
+  try
+    fn()
+  finally
+    old.env = oldenv
+    old.fptr = oldfptr
   end
 end
 
