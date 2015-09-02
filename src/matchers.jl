@@ -1,28 +1,15 @@
 export ANYTHING, anything_of_type, anything_in, anything_containing, Matcher, redescribe
 
-import MetaTools
-import Base: ==
+import Base: ==, &, |, !
 
 immutable Matcher
   predicate::Function
   description::String
 end
 
-@MetaTools.commutative Base.isequal(matcher::Matcher, value::WeakRef) = matcher.predicate(value)
-@MetaTools.commutative Base.isequal(matcher::Matcher, value::Any) = matcher.predicate(value)
-Base.isequal(lhs::Matcher, rhs::Matcher) = error("Can not compare 2 Matchers")
-
-@MetaTools.commutative function ==(matcher::Matcher, value::WeakRef)
-    matcher.predicate(value)
-end
-
-@MetaTools.commutative function ==(matcher::Matcher, value::Any)
-    if isa(value, Matcher)
-         error("Can not compare 2 Matchers")
-    else
-        matcher.predicate(value)
-    end
-end
+==(matcher1::Matcher, matcher2::Matcher) = error("Can not compare 2 Matchers")
+==(value::Any, matcher::Matcher) = matcher == value
+==(matcher::Matcher, value::Any) = matcher.predicate(value)
 
 Base.show(io::IO, matcher::Matcher) = print(io, matcher.description)
 
