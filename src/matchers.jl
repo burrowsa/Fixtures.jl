@@ -7,9 +7,6 @@ immutable Matcher
   description::String
 end
 
-==(value::WeakRef, matcher::Matcher) = matcher == value
-==(matcher::Matcher, value::WeakRef) = matcher == value
-
 ==(matcher1::Matcher, matcher2::Matcher) = error("Can not compare 2 Matchers")
 ==(value::Any, matcher::Matcher) = matcher == value
 ==(matcher::Matcher, value::Any) = matcher.predicate(value)
