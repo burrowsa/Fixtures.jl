@@ -38,7 +38,7 @@ function add_fixture(scope::Symbol, name::SymbolOrNothing, fixture::Function, ar
   if haskey(fixtures, scope)
     append!(fixtures[scope], [nf])
   else
-    fixtures[scope] = Array{NamedFixture}(1)
+    fixtures[scope] = Array(NamedFixture, 1)
     fixtures[scope][1] = nf
   end
   return
