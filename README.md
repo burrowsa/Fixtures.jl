@@ -317,3 +317,7 @@ So we could be a bit stricter in our previous example:
     mock1(rand(), 200)
     
     @Test.test calls(mock1) == [ call(anything_of_type(Number), 200) ]
+
+## Code Coverage ##
+
+Code Coverage is not saying 100% because of the [code in red](https://codecov.io/github/invenia/Fixtures.jl/src/registered_fixtures.jl?ref=8149cca5a6e6304a573e77923cd9bd35703a8251#l-49). We did test to make sure it ran by putting a break point in there.
