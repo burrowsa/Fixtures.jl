@@ -11,11 +11,25 @@ end
 
 fixtures = Dict{Symbol, Array{NamedFixture}}()
 
-get_name(nfs::Array{NamedFixture}) = [nf.name for nf in nfs]
-names() = Set([ get_name(x) for x in values(Fixtures.fixtures) ])
+get_name(nfs::Array{NamedFixture}) = Set( [nf.name for nf in nfs] )
+
+function is_name_good(name::SymbolOrNothing)
+  result = false
+
+  if name != nothing
+    for fixtures in values(Fixtures.fixtures)
+      if name in get_name(fixtures)
+        result = true
+      end
+    end
+  end
+
+  return result
+end
 
 function add_fixture(scope::Symbol, name::SymbolOrNothing, fixture::Function, args...; kwargs...)
-  if name!=nothing && name in names()
+
+  if is_name_good(name)
     error("A fixture named $name is already defined.")
   end
 

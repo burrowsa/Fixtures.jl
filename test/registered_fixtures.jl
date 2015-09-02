@@ -346,6 +346,17 @@ facts("Registered Fixtures tests") do
       @fact values[:paul] => 200
     end
   end
+
+  context("Two fixture with the same name", using_fixtures) do
+    function produce_n(fn::Function, n::Integer)
+      fn(n)
+    end
+
+    name = :same_name
+
+    add_fixture(:examplescope, name, produce_n, 100)
+    @fact_throws add_fixture(:examplescope, name, produce_n, 100)
+  end
 end
 
 end
