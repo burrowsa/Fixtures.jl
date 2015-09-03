@@ -1,6 +1,6 @@
 module MockTests
 
-using Fixtures.Mocking
+using Fixtures
 using FactCheck
 
 
