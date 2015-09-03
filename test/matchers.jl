@@ -137,6 +137,25 @@ facts("Matchers tests") do
     @fact (6.54321==composite2) --> true
     @fact (7.89==composite2) --> false
   end
+
+  context("Compare WeakRef with a matcher") do
+    v1 = 10
+    w1 = WeakRef(v1)
+
+    v2 = [20, 30]
+    w2 = WeakRef(v2)
+
+    v3 = []
+    push!(v3, [20, 30])
+    push!(v3, [40, 50])
+
+    @fact 10 == anything_in(w1) --> true
+    @fact 20 == anything_in(w1) --> false
+    @fact 20 == anything_in(w2) --> true
+    @fact v3 == anything_containing(w2) --> true
+    @fact v3 == anything_containing(w1) --> false
+  end
+
 end
 
 end
