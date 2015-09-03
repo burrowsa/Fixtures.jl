@@ -8,9 +8,9 @@ immutable Matcher
 end
 
 ==(matcher1::Matcher, matcher2::Matcher) = error("Can not compare 2 Matchers")
-==(value::WeakRef, matcher::Matcher) = matcher == value
+==(value::WeakRef, matcher::Matcher) = matcher == value.value
 ==(value::Any, matcher::Matcher) = matcher == value
-==(matcher::Matcher, value::WeakRef) = matcher.predicate(value)
+==(matcher::Matcher, value::WeakRef) = matcher.predicate(value.value)
 ==(matcher::Matcher, value::Any) = matcher.predicate(value)
 
 Base.show(io::IO, matcher::Matcher) = print(io, matcher.description)
