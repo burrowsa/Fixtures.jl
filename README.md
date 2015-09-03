@@ -2,7 +2,15 @@
 
 Fixtures.jl provides fixtures, mocks, matchers and patching to improve your test life with Julia.
 
-[![Build Status](https://travis-ci.org/burrowsa/Fixtures.jl.png?branch=master)](https://travis-ci.org/burrowsa/Fixtures.jl)
+[![Build Status](https://travis-ci.org/burrowsa/Fixtures.jl.png?branch=master)](https://travis-ci.org/burrowsa/Fixtures.jl) [![codecov.io](http://codecov.io/github/invenia/Fixtures.jl/coverage.svg?branch=master)](http://codecov.io/github/invenia/Fixtures.jl?branch=master)
+
+## Requirement ##
+
+You need the latest version of `MetaTools`. Run this to get the latest,
+```
+Pkg.add("MetaTools")
+Pkg.checkout("MetaTools")
+```
 
 ## An introduction to fixtures in Julia##
 
@@ -262,6 +270,34 @@ You can use `patch()` as above or you can use it with `add_fixture()` and `apply
         @Test.test firstline("foobar.txt") == "Hello Julia"
     end
     
+
+You can also have multiple patches passed in as an array.
+
+```
+function firstline(filename)
+    foo = open(filename)
+    bar = close(filename)
+    return foo, bar
+end
+
+function fake_open(filename)
+    return "hello,"
+end
+
+function fake_close(filename)
+    return "world"
+end
+
+patchers = [
+        Patcher(Base, :open, fake_open),
+        Patcher(Base, :close, fake_close),
+    ]
+
+patch(patchers) do
+    @Test.test firstline("foobar.txt") == ("hello,", "world")
+end
+```
+
 > **Note:** Due to a current [issue](https://github.com/JuliaLang/julia/issues/265) in Julia your ability to patch a function may be limited if the code calling that function has already been called.
 
 ## Mocks ##
@@ -317,3 +353,7 @@ So we could be a bit stricter in our previous example:
     mock1(rand(), 200)
     
     @Test.test calls(mock1) == [ call(anything_of_type(Number), 200) ]
+
+## Code Coverage ##
+
+Code Coverage is not saying 100% because of the [code in red](https://codecov.io/github/invenia/Fixtures.jl/src/registered_fixtures.jl?ref=8149cca5a6e6304a573e77923cd9bd35703a8251#l-49). We did test to make sure it ran by putting a break point in there. If there are no other untested lines of code, the coverage should be at 100%.

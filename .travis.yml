@@ -1,18 +1,16 @@
-language: cpp
-compiler:
-  - clang
+language: julia
+os:
+  - linux
+  - osx
+julia:
+  - release
+  - nightly
 notifications:
   email: false
-env:
-  matrix: 
-    - JULIAVERSION="juliareleases" 
-    - JULIAVERSION="julianightlies" 
-before_install:
-  - sudo add-apt-repository ppa:staticfloat/julia-deps -y
-  - sudo add-apt-repository ppa:staticfloat/${JULIAVERSION} -y
-  - sudo apt-get update -qq -y
-  - sudo apt-get install libpcre3-dev julia -y
+sudo: false
 script:
-  - julia -e 'Pkg.init(); run(`ln -s $(pwd()) $(Pkg.dir("Fixtures"))`); Pkg.pin("Fixtures"); Pkg.resolve()'
-  - julia -e 'using Fixtures; @assert isdefined(:Fixtures); @assert typeof(Fixtures) === Module'
-  - julia test/runtests.jl
+ - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
+ - julia --check-bounds=yes --color=yes -e 'Pkg.add("MetaTools"); Pkg.checkout("MetaTools");
+            Pkg.clone(pwd()); Pkg.build("Fixtures"); Pkg.test("Fixtures"; coverage=true)'
+after_success:
+- julia -e 'cd(Pkg.dir("Fixtures")); Pkg.add("Coverage"); using Coverage; Codecov.submit(process_folder())'
