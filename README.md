@@ -4,6 +4,14 @@ Fixtures.jl provides fixtures, mocks, matchers and patching to improve your test
 
 [![Build Status](https://travis-ci.org/burrowsa/Fixtures.jl.png?branch=master)](https://travis-ci.org/burrowsa/Fixtures.jl) [![codecov.io](http://codecov.io/github/invenia/Fixtures.jl/coverage.svg?branch=master)](http://codecov.io/github/invenia/Fixtures.jl?branch=master)
 
+## Requirement ##
+
+You need the latest version of `MetaTools`. Run this to get the latest,
+```
+Pkg.add("MetaTools")
+Pkg.checkout("MetaTools")
+```
+
 ## An introduction to fixtures in Julia##
 
 According to [wikipedia.org](http://en.wikipedia.org/wiki/Test_fixture#Software "wikipedia.org"):
