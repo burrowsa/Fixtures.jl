@@ -11,11 +11,11 @@ facts("Registered Fixtures tests") do
         fn()
       end
 
-      @fact Fixtures.fixtures => Dict()
+      @fact Fixtures.fixtures --> Dict()
       add_fixture(:somecontext, somefunction)
-      @fact length(Fixtures.fixtures)=>1
-      @fact Fixtures.fixtures[:somecontext][1].name => nothing
-      @fact Fixtures.fixtures[:somecontext][1].fn => anything_of_type(Function)
+      @fact length(Fixtures.fixtures)-->1
+      @fact Fixtures.fixtures[:somecontext][1].name --> nothing
+      @fact Fixtures.fixtures[:somecontext][1].fn --> anything_of_type(Function)
     end
   end
 
@@ -32,13 +32,13 @@ facts("Registered Fixtures tests") do
         end
       end
 
-      @fact Fixtures.fixtures => Dict()
+      @fact Fixtures.fixtures --> Dict()
       add_fixture(:somecontext, fixture_func)
-      @fact x=>0
+      @fact x-->0
       apply_fixtures(:somecontext) do
-        @fact x=>100
+        @fact x-->100
       end
-      @fact x=>200
+      @fact x-->200
     end
   end
 
@@ -54,13 +54,13 @@ facts("Registered Fixtures tests") do
         global x = 200
       end
 
-      @fact Fixtures.fixtures => Dict()
+      @fact Fixtures.fixtures --> Dict()
       add_simple_fixture(:somecontext, setup_func, teardown_func)
-      @fact x=>0
+      @fact x-->0
       apply_fixtures(:somecontext) do
-        @fact x=>100
+        @fact x-->100
       end
-      @fact x=>200
+      @fact x-->200
     end
   end
 
@@ -78,19 +78,19 @@ facts("Registered Fixtures tests") do
       end
 
       apply_fixtures(:toplevel) do
-        @fact Fixtures.fixtures => Dict()
+        @fact Fixtures.fixtures --> Dict()
         add_fixture(:somecontext, fixture_func)
 
-        @fact Fixtures.fixtures => not(Dict())
+        @fact Fixtures.fixtures --> not(Dict())
 
-        @fact x=>0
+        @fact x-->0
         apply_fixtures(:somecontext) do
-          @fact x=>100
+          @fact x-->100
         end
-        @fact x=>200
+        @fact x-->200
       end
 
-      @fact Fixtures.fixtures => Dict()
+      @fact Fixtures.fixtures --> Dict()
     end
   end
 
@@ -104,11 +104,11 @@ facts("Registered Fixtures tests") do
 
     add_fixture(:examplescope, changex)
 
-    @fact x => 0
+    @fact x --> 0
     apply_fixtures(:examplescope) do
-      @fact x => 100
+      @fact x --> 100
     end
-    @fact x => 100
+    @fact x --> 100
   end
 
   context("A 2-part-function fixture", using_fixtures) do
@@ -125,11 +125,11 @@ facts("Registered Fixtures tests") do
 
     add_fixture(:examplescope, changex)
 
-    @fact x => 0
+    @fact x --> 0
     apply_fixtures(:examplescope) do
-      @fact x => 100
+      @fact x --> 100
     end
-    @fact x => 200
+    @fact x --> 200
   end
 
   context("combine two 2-part-function fixtures", using_fixtures) do
@@ -157,14 +157,14 @@ facts("Registered Fixtures tests") do
     add_fixture(:examplescope, changex)
     add_fixture(:examplescope, changey)
 
-    @fact x => 0
-    @fact y => 0
+    @fact x --> 0
+    @fact y --> 0
     apply_fixtures(:examplescope) do
-      @fact x => 100
-      @fact y => 100
+      @fact x --> 100
+      @fact y --> 100
     end
-    @fact x => 200
-    @fact y => 200
+    @fact x --> 200
+    @fact y --> 200
   end
 
   context("combine two 2-part-function fixtures check order", using_fixtures) do
@@ -191,11 +191,11 @@ facts("Registered Fixtures tests") do
     add_fixture(:examplescope, appenda)
     add_fixture(:examplescope, appendb)
 
-    @fact x => ""
+    @fact x --> ""
     apply_fixtures(:examplescope) do
-      @fact x => "ab"
+      @fact x --> "ab"
     end
-    @fact x => "abBA"
+    @fact x --> "abBA"
   end
 
   context("combine 1-part-function and 2-part-function fixtures", using_fixtures) do
@@ -219,14 +219,14 @@ facts("Registered Fixtures tests") do
     add_fixture(:examplescope, changex)
     add_fixture(:examplescope, changey)
 
-    @fact x => 0
-    @fact y => 0
+    @fact x --> 0
+    @fact y --> 0
     apply_fixtures(:examplescope) do
-      @fact x => 100
-      @fact y => 100
+      @fact x --> 100
+      @fact y --> 100
     end
-    @fact x => 100
-    @fact y => 200
+    @fact x --> 100
+    @fact y --> 200
   end
 
   context("A fixture with no values", using_fixtures) do
@@ -237,8 +237,8 @@ facts("Registered Fixtures tests") do
     add_fixture(:examplescope, :nowt, nadda)
 
     apply_fixtures(:examplescope, fixture_values=true) do values
-      @fact collect(keys(values)) => [:nowt]
-      @fact values[:nowt] => nothing
+      @fact collect(keys(values)) --> [:nowt]
+      @fact values[:nowt] --> nothing
     end
   end
 
@@ -250,8 +250,8 @@ facts("Registered Fixtures tests") do
     add_fixture(:examplescope, :one_hundred, produce_n, 100)
 
     apply_fixtures(:examplescope, fixture_values=true) do values
-      @fact collect(keys(values)) => [:one_hundred]
-      @fact values[:one_hundred] => 100
+      @fact collect(keys(values)) --> [:one_hundred]
+      @fact values[:one_hundred] --> 100
     end
   end
 
@@ -263,8 +263,8 @@ facts("Registered Fixtures tests") do
     add_fixture(:examplescope, :empty, produce_empty)
 
     apply_fixtures(:examplescope, fixture_values=true) do values
-      @fact collect(keys(values)) => [:empty]
-      @fact values[:empty] => ()
+      @fact collect(keys(values)) --> [:empty]
+      @fact values[:empty] --> ()
     end
   end
 
@@ -276,8 +276,8 @@ facts("Registered Fixtures tests") do
     add_fixture(:examplescope, :one_hundred, produce_n, 100)
 
     apply_fixtures(:examplescope, fixture_values=true) do values
-      @fact collect(keys(values)) => [:one_hundred]
-      @fact values[:one_hundred] => (100,)
+      @fact collect(keys(values)) --> [:one_hundred]
+      @fact values[:one_hundred] --> (100,)
     end
   end
 
@@ -289,8 +289,8 @@ facts("Registered Fixtures tests") do
     add_fixture(:examplescope, :some_nums, produce_n, (100, 200))
 
     apply_fixtures(:examplescope, fixture_values=true) do values
-      @fact collect(keys(values)) => [:some_nums]
-      @fact values[:some_nums] => (100, 200)
+      @fact collect(keys(values)) --> [:some_nums]
+      @fact values[:some_nums] --> (100, 200)
     end
   end
 
@@ -302,8 +302,8 @@ facts("Registered Fixtures tests") do
     add_fixture(:examplescope, :some_nums, produce_n_and_m, 100, 200)
 
     apply_fixtures(:examplescope, fixture_values=true) do values
-      @fact collect(keys(values)) => [:some_nums]
-      @fact values[:some_nums] => (100, 200)
+      @fact collect(keys(values)) --> [:some_nums]
+      @fact values[:some_nums] --> (100, 200)
     end
   end
 
@@ -315,8 +315,8 @@ facts("Registered Fixtures tests") do
     add_fixture(:examplescope, :some_nums, produce_n_m_and_o, 100, 200, 300)
 
     apply_fixtures(:examplescope, fixture_values=true) do values
-      @fact collect(keys(values)) => [:some_nums]
-      @fact values[:some_nums] => (100, 200, 300)
+      @fact collect(keys(values)) --> [:some_nums]
+      @fact values[:some_nums] --> (100, 200, 300)
     end
   end
 
@@ -328,7 +328,7 @@ facts("Registered Fixtures tests") do
     add_fixture(:examplescope, produce_n, 100)
 
     apply_fixtures(:examplescope, fixture_values=true) do values
-      @fact collect(keys(values)) => []
+      @fact collect(keys(values)) --> []
     end
   end
 
@@ -341,9 +341,9 @@ facts("Registered Fixtures tests") do
     add_fixture(:examplescope, :paul, produce_n, 200)
 
     apply_fixtures(:examplescope, fixture_values=true) do values
-      @fact sort(collect(keys(values))) => sort([:peter, :paul])
-      @fact values[:peter] => 100
-      @fact values[:paul] => 200
+      @fact sort(collect(keys(values))) --> sort([:peter, :paul])
+      @fact values[:peter] --> 100
+      @fact values[:paul] --> 200
     end
   end
 
