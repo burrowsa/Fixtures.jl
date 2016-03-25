@@ -1,6 +1,7 @@
+import Base.reset
 export mock, calls, reset, call
 
-global _calls = Dict{Function, Vector{(Tuple, Vector)}}()
+global _calls = Dict{Function, Vector}()
 
 function mock(;return_value::Any=nothing, side_effect::Union(Function, Nothing)=nothing)
   function impl(args::Any...; kwargs...)
